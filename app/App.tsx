@@ -12,6 +12,7 @@ import {
   DeviceEventEmitter,
   TextInput,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 
 import {
@@ -33,11 +34,22 @@ import {
 } from '@env';
 import {PassportData} from './types/passportData';
 import {dataHashesObjToArray} from './utils/utils';
+import {Buffer} from 'buffer';
 
 console.log('DEFAULT_PNUMBER', DEFAULT_PNUMBER);
 
 const CACHE_DATA_IN_LOCAL_SERVER = true;
 const SKIP_SCAN = false;
+
+const hexToBytes = (hex: string) => {
+  var bytes = [];
+
+  for (var c = 0; c < hex.length; c += 2) {
+    bytes.push(parseInt(hex.substr(c, 2), 16));
+  }
+
+  return bytes;
+};
 
 function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
@@ -127,13 +139,7 @@ function App(): JSX.Element {
     setStep('scanCompleted');
   }
 
-  async function scan() {
-    checkInputs(passportNumber, dateOfBirth, dateOfExpiry);
-    // 1. start a scan
-    // 2. press the back of your android phone against the passport
-    // 3. wait for the scan(...) Promise to get resolved/rejected
-    console.log('scanning...');
-    setStep('scanning');
+  async function scanAndroid() {
     try {
       const response = await PassportReader.scan({
         documentNumber: passportNumber,
@@ -171,9 +177,63 @@ function App(): JSX.Element {
     // 7. Call the verifier contract with the calldata
   };
 
-  const handleNative = async () => {
-    const value = await NativeModules.PassportReader.scanPassport('', '', '');
-    console.log(`native tells us ${value}`);
+  const scanIphone = async () => {
+    const value = await NativeModules.PassportReader.scanPassport(
+      passportNumber,
+      dateOfBirth,
+      dateOfExpiry,
+    );
+    console.log(`native tells us ${value[0]}`);
+    // const buffer = Buffer.from(value[3], 'base64');
+    // const bufString = buffer.toString('hex');
+    // console.log(bufString);
+    // console.log(hexToBytes(bufString));
+
+    const passportData: PassportData = {
+      mrzInfo: {
+        compositeCheckDigit: '0',
+        dateOfBirth: '000000',
+        dateOfBirthCheckDigit: '0',
+        dateOfExpiry: '000000',
+        dateOfExpiryCheckDigit: '0',
+        documentCode: '0',
+        documentNumber: '0',
+        documentNumberCheckDigit: '0',
+        documentType: 0,
+        gender: '0',
+        issuingState: '0',
+        nationality: '0',
+        optionalData1: '0',
+        primaryIdentifier: '0',
+        secondaryIdentifier: '0',
+      },
+      publicKey: '',
+      publicKeyPEM: '',
+      dataGroupHashes: [[0, [0]]],
+      eContent: '',
+      encryptedDigest: '',
+      contentBytes: '',
+      eContentDecomposed: '',
+    };
+
+    setPassportData(passportData);
+    setStep('scanCompleted');
+  };
+
+  const scan = () => {
+    checkInputs(passportNumber, dateOfBirth, dateOfExpiry);
+
+    // 1. start a scan
+    // 2. press the back of your android phone against the passport
+    // 3. wait for the scan(...) Promise to get resolved/rejected
+    console.log('scanning...');
+    setStep('scanning');
+
+    if (Platform.OS === 'android') {
+      scanAndroid();
+    } else {
+      scanIphone();
+    }
   };
 
   return (
@@ -211,7 +271,6 @@ function App(): JSX.Element {
                 placeholder="Date of Expiry (YYYY-MM-DD)"
               />
               <Button title="Scan Passport with NFC" onPress={scan} />
-              <Button title="Call native method" onPress={handleNative} />
             </View>
           ) : null}
           {step === 'scanning' ? (

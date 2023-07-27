@@ -60,7 +60,7 @@ class PassportReader: NSObject{
     let customMessageHandler : (NFCViewDisplayMessage)->String? = { (displayMessage) in
                     switch displayMessage {
                         case .requestPresentPassport:
-                            return "Hold your iPhone near ann NFC enabled passport."
+                            return "Hold your iPhone near an NFC enabled passport."
                         default:
                             // Return nil for all other messages so we use the provided default
                             return nil
@@ -78,9 +78,9 @@ class PassportReader: NSObject{
               passportReader.setMasterListURL( masterListURL! )
 
                 let passport = try await passportReader.readPassport( mrzKey: mrzKey, customDisplayMessage: customMessageHandler)
-
-              let passportData = passport.lastName
-                resolve(passportData)
+              
+              let eContent = passport.getDataGroup(DataGroupId.SOD) as! SOD
+              resolve([passport.firstName, passport.lastName, passport.passportMRZ, try eContent.getEncapsulatedContent().base64EncodedString()] as [Any])
             } catch {
                 reject("E_PASSPORT_READ", "Failed to read passport", error)
             }
