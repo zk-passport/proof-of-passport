@@ -57,6 +57,9 @@ import {
   formatMrz,
   splitToWords
 } from '../common/src/utils/utils';
+import NfcManager, {NfcTech} from 'react-native-nfc-manager';
+
+NfcManager.start();
 
 console.log('DEFAULT_PNUMBER', DEFAULT_PNUMBER);
 console.log('LOCAL_IP', LOCAL_IP);
@@ -332,6 +335,30 @@ function App(): JSX.Element {
     });
   };
 
+  async function readIsoDep() {
+    try {
+      // register for the NFC tag with IsoDep in it
+      console.warn('Requesting tech...');
+      await NfcManager.requestTechnology(NfcTech.IsoDep);
+      // the resolved tag object will contain `ndefMessage` property
+      console.warn('Technology requested');
+      const tag = await NfcManager.getTag();
+      console.warn('Tag found:', tag);
+      // const bytes = IsoD.encodeMessage([Ndef.textRecord('Hello NFC')]);
+      
+      const res = await NfcManager.isoDepHandler.transceive([0x00, 0xA4, 0x04, 0x00, 0x07, 0xA0, 0x00, 0x00, 0x02, 0x47, 0x10, 0x01]);
+      console.log('res', res)
+
+
+
+    } catch (ex) {
+      console.warn('Oops!', ex);
+    } finally {
+      // stop the nfc scanning
+      NfcManager.cancelTechnologyRequest();
+    }
+  }
+
   return (
     <GluestackUIProvider config={config}>
       <SafeAreaView style={backgroundStyle}>
@@ -556,6 +583,13 @@ function App(): JSX.Element {
             </Button>
             {proofResult && <Text>{proofResult}</Text>}
             {error && <Text>{error}</Text>}
+
+            <Button
+              onPress={readIsoDep}
+              marginTop={10}
+            >
+              <ButtonText>Read passport through react-native-nfc-manager</ButtonText>
+            </Button>
 
           </View>
         </ScrollView>

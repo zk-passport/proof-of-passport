@@ -22,6 +22,7 @@
     "pvutils": "^1.1.3",
     "react": "18.2.0",
     "react-native": "0.72.3",
+    "react-native-nfc-manager": "^3.14.11",
     "react-native-passport-reader": "^1.0.3",
     "react-native-svg": "13.4.0"
   },
