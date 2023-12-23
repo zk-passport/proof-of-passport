@@ -74,6 +74,12 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     namespace "com.proofofpassport"
+
+    packagingOptions {
+        excludes = ["**/libc++_shared.so", "**/libfbjni.so", "**/libreactnativejni.so", "**/libjsi.so", "**/libreact_nativemodule_core.so", "**/libturbomodulejsijni.so", "**/MANIFEST.MF", ""]
+        doNotStrip '**/*.so'
+    }
+    
     defaultConfig {
         applicationId "com.proofofpassport"
         minSdkVersion rootProject.ext.minSdkVersion

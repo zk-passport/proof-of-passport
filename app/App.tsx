@@ -58,6 +58,9 @@ import {
   splitToWords
 } from '../common/src/utils/utils';
 import NfcManager, {NfcTech} from 'react-native-nfc-manager';
+import { doBAC } from './utils/bacfrompypassport';
+import { computeBacKeys, performBac } from './utils/bacfrommonai';
+
 
 NfcManager.start();
 
@@ -76,6 +79,12 @@ const attributeToPosition = {
   gender: [64, 65],
   expiry_date: [65, 71],
 }
+
+export async function transceive(input: number[]) {
+  const res = await NfcManager.isoDepHandler.transceive(input);
+  return res.map(byte => byte.toString(16));
+}
+
 
 function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
@@ -346,8 +355,22 @@ function App(): JSX.Element {
       console.warn('Tag found:', tag);
       // const bytes = IsoD.encodeMessage([Ndef.textRecord('Hello NFC')]);
       
-      const res = await NfcManager.isoDepHandler.transceive([0x00, 0xA4, 0x04, 0x00, 0x07, 0xA0, 0x00, 0x00, 0x02, 0x47, 0x10, 0x01]);
-      console.log('res', res)
+      // CRAFTY VERSION
+      // const mrzFlo = "19HA348284FRA0007191M2912095<<<<<<<<<<<<<<02"
+      const kmrz = "19HA348284" + "0007191" + "2912095"
+      // console.log("init", await transceive([0x00, 0xA4, 0x04, 0x0C, 0x07]));
+      // console.log("select?", await transceive([0x00, 0xA4, 0x02, 0x0C, 0x02]));
+      // const res = await doBAC(kmrz); // crafty version
+      console.log('-----------------------------');
+
+      // console.log("init", await transceive([0x00, 0xA4, 0x04, 0x0C, 0x07]));
+      // console.log("select with right one", await transceive([0x00, 0xA4, 0x04, 0x00, 0x07, 0xA0, 0x00, 0x00, 0x02, 0x47, 0x10, 0x01]));
+      console.log("select?", await transceive([0x00, 0xA4, 0x02, 0x0C, 0x02]));
+      const bacKeys = computeBacKeys(kmrz)
+      console.log("bacKeys", bacKeys);
+      const sessionKey = await performBac(bacKeys);
+
+
 
 
 
