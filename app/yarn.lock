@@ -7607,6 +7607,11 @@ react-native-svg@13.4.0:
     css-select "^5.1.0"
     css-tree "^1.1.3"
 
+react-native-util@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-util/-/react-native-util-1.0.2.tgz#76b6380ce09557c0d78c19af78c9cb9c39b32a90"
+  integrity sha512-VbQtpcad3Jf11TF9FytXqPlarlnStCWABCZxEwzmETDZTyNtuD5c6K8YllexNcrV7KyW+s1p7zj9mRh041uecw==
+
 react-native@0.72.3:
   version "0.72.3"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.72.3.tgz"

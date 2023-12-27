@@ -76,8 +76,10 @@ android {
     namespace "com.proofofpassport"
 
     packagingOptions {
-        excludes = ["**/libc++_shared.so", "**/libfbjni.so", "**/libreactnativejni.so", "**/libjsi.so", "**/libreact_nativemodule_core.so", "**/libturbomodulejsijni.so", "**/MANIFEST.MF", ""]
-        doNotStrip '**/*.so'
+        pickFirst 'lib/x86/libcrypto.so'
+        pickFirst 'lib/x86_64/libcrypto.so'
+        pickFirst 'lib/armeabi-v7a/libcrypto.so'
+        pickFirst 'lib/arm64-v8a/libcrypto.so'
     }
     
     defaultConfig {

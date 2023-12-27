@@ -28,7 +28,8 @@
     "react-native-passport-reader": "^1.0.3",
     "react-native-quick-base64": "^2.0.8",
     "react-native-quick-crypto": "^0.6.1",
-    "react-native-svg": "13.4.0"
+    "react-native-svg": "13.4.0",
+    "react-native-util": "^1.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
