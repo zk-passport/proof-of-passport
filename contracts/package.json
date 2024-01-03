@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.2",
+    "@zk-kit/imt": "^2.0.0-beta",
     "axios": "^1.6.2",
     "dotenv": "^16.3.1",
     "hardhat-contract-sizer": "^2.10.0",
-    "snarkjs": "^0.7.2"
+    "poseidon-lite": "^0.2.0",
+    "snarkjs": "^0.7.1"
   }
 }

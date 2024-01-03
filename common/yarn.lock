@@ -23,6 +23,11 @@
   dependencies:
     undici-types "~5.26.4"
 
+"@zk-kit/imt@^2.0.0-beta":
+  version "2.0.0-beta"
+  resolved "https://registry.yarnpkg.com/@zk-kit/imt/-/imt-2.0.0-beta.tgz#7bafd6c2d211dd6f153f97378c2993b2248c76a9"
+  integrity sha512-Nu0eomkc+EkjSouna/b80B2wlvq1Ng+ydfFZUjJZ7swJdwV3bmq/katrSYA4cOohtornl1CDQMhZwAH7yo5U+Q==
+
 js-sha256@^0.10.1:
   version "0.10.1"
   resolved "https://registry.npmjs.org/js-sha256/-/js-sha256-0.10.1.tgz"
@@ -32,6 +37,11 @@ node-forge@^1.3.1:
   version "1.3.1"
   resolved "https://registry.npmjs.org/node-forge/-/node-forge-1.3.1.tgz"
   integrity sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==
+
+poseidon-lite@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/poseidon-lite/-/poseidon-lite-0.2.0.tgz#dbc242ebd9c10c32d507a533fa497231d168fd72"
+  integrity sha512-vivDZnGmz8W4G/GzVA72PXkfYStjilu83rjjUfpL4PueKcC8nfX6hCPh2XhoC5FBgC6y0TA3YuUeUo5YCcNoig==
 
 regenerator-runtime@^0.14.0:
   version "0.14.0"

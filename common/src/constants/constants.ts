@@ -1,5 +1,20 @@
 export const AWS_ENDPOINT = "https://0pw5u65m3a.execute-api.eu-north-1.amazonaws.com/api-stage/mint"
 
+export const TREE_DEPTH = 16
+
+export enum SignatureAlgorithm {
+  sha256WithRSAEncryption_65537 = 1,
+  sha256WithRSAEncryption_3 = 2,
+  sha1WithRSAEncryption_65537 = 3,
+  rsassaPss_65537 = 4,
+  rsassaPss_3 = 5,
+  ecdsa_with_SHA384 = 6,
+  ecdsa_with_SHA1 = 7,
+  ecdsa_with_SHA256 = 8,
+  ecdsa_with_SHA512 = 9,
+  sha512WithRSAEncryption_65537 = 10
+}
+
 export const attributeToPosition = {
   issuing_state: [2, 4],
   name: [5, 43],

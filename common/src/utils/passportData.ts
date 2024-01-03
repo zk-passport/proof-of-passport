@@ -35,10 +35,12 @@ const sampleTimeOfSig = [49, 15, 23, 13, 49, 57, 49, 50, 49, 54, 49, 55, 50, 50,
 
 export function genSampleData(): PassportData {
   const mrzHash = hash(formatMrz(sampleMRZ));
-  sampleDataHashes.unshift([1, mrzHash]);
+  // deep copy to avoid interactions between tests
+  const sampleDataHashesCopy = sampleDataHashes.slice();
+  sampleDataHashesCopy.unshift([1, mrzHash]);
   const concatenatedDataHashes = formatAndConcatenateDataHashes(
     mrzHash,
-    sampleDataHashes as DataHash[],
+    sampleDataHashesCopy as DataHash[],
   );
   const eContent = assembleEContent(
     hash(concatenatedDataHashes),
@@ -66,11 +68,12 @@ export function genSampleData(): PassportData {
 
   return {
     mrz: sampleMRZ,
-    signatureAlgorithm: 'SHA256withRSA', // sha256WithRSAEncryption
+    signatureAlgorithm: 'sha256WithRSAEncryption',
     pubKey: {
       modulus: hexToDecimal(modulus),
+      exponent: '65537',
     },
-    dataGroupHashes: sampleDataHashes as DataHash[],
+    dataGroupHashes: sampleDataHashesCopy as DataHash[],
     eContent: eContent,
     encryptedDigest: signatureBytes,
   }

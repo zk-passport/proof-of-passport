@@ -6,7 +6,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import {Groth16Verifier} from "./Verifier.sol";
 import {Base64} from "./libraries/Base64.sol";
-import {Formatter} from "./libraries/Formatter.sol";
+import {Formatter} from "./Formatter.sol";
+import {Registry} from "./Registry.sol";
 import "hardhat/console.sol";
 
 contract ProofOfPassport is ERC721Enumerable, Ownable {
@@ -15,7 +16,7 @@ contract ProofOfPassport is ERC721Enumerable, Ownable {
 
     Groth16Verifier public immutable verifier;
     Formatter public formatter;
-    address public cscaPubkey = 0x0000000000000000000000000000000000000000;
+    Registry public registry;
 
     mapping(uint256 => bool) public nullifiers;
 
@@ -34,9 +35,10 @@ contract ProofOfPassport is ERC721Enumerable, Ownable {
 
     mapping(uint256 => Attributes) private tokenAttributes;
 
-    constructor(Groth16Verifier v, Formatter f) ERC721("ProofOfPassport", "ProofOfPassport") {
+    constructor(Groth16Verifier v, Formatter f, Registry r) ERC721("ProofOfPassport", "ProofOfPassport") {
         verifier = v;
         formatter = f;
+        registry = r;
         setupAttributes();
         transferOwnership(msg.sender);
     }
@@ -51,30 +53,16 @@ contract ProofOfPassport is ERC721Enumerable, Ownable {
         attributePositions.push(AttributePosition("expiry_date", 65, 70, 6));
     }
 
-    function setCSCApubKey(address _CSCApubKey) public onlyOwner {
-        cscaPubkey = _CSCApubKey;
-    }
-
     function mint(
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c,
-        uint256[16] memory inputs
+        uint256[6] memory inputs
     ) public {
         // check that the nullifier has not been used before
         require(!nullifiers[inputs[3]], "Signature already nullified");
 
-
-
-        // Verify that the public key for RSA matches the hardcoded one
-        // for (uint256 i = body_len; i < msg_len - 1; i++) {
-        //     require(mailServer.isVerified(domain, i - body_len, inputs[i]), "Invalid: RSA modulus not matched");
-        // }
-        // inputs[4]
-
-        // Verify that the public key for RSA matches the hardcoded one
-        // commented out for now, since hard to keep up with all
-        // require(cscaPubkey == inputs[], "Invalid pubkey in inputs");
+        require(registry.checkRoot(bytes32(inputs[4])), "Invalid merkle root");
 
         require(verifier.verifyProof(a, b, c, inputs), "Invalid Proof");
 
@@ -120,7 +108,7 @@ contract ProofOfPassport is ERC721Enumerable, Ownable {
         return bytesArray;
     }
 
-    function sliceFirstThree(uint256[16] memory input) public pure returns (uint256[3] memory) {
+    function sliceFirstThree(uint256[6] memory input) public pure returns (uint256[3] memory) {
         uint256[3] memory sliced;
 
         for (uint256 i = 0; i < 3; i++) {

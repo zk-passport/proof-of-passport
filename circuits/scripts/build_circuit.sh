@@ -40,7 +40,7 @@ yarn snarkjs groth16 setup build/proof_of_passport.r1cs build/powersOfTau28_hez_
 
 echo "building vkey"
 echo "test random" | yarn snarkjs zkey contribute build/proof_of_passport.zkey build/proof_of_passport_final.zkey
-yarn snarkjs zkey export verificationkey build/proof_of_passport_final.zkey build/verification_key.json
+yarn snarkjs zkey export verificationkey build/proof_of_passport_final.zkey build/proof_of_passport_vkey.json
 
 yarn snarkjs zkey export solidityverifier build/proof_of_passport_final.zkey build/Verifier.sol
 cp build/Verifier.sol ../contracts/contracts/Verifier.sol

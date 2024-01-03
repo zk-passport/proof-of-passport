@@ -177,3 +177,23 @@ export function hexToSignedBytes(hexString: string): number[] {
 export function toUnsignedByte(signedByte: number) {
   return signedByte < 0 ? signedByte + 256 : signedByte;
 }
+
+export function formatSigAlg(sigAlg: string, exponent: string | undefined) {
+  sigAlg = sigAlg.replace(/-/g, '_')
+  return exponent ? `${sigAlg}_${exponent}` : sigAlg
+}
+
+export function bigIntToChunkedBytes(num: BigInt | bigint, bytesPerChunk: number, numChunks: number) {
+  const res: string[] = [];
+  const bigintNum: bigint = typeof num == "bigint" ? num : num.valueOf();
+  const msk = (1n << BigInt(bytesPerChunk)) - 1n;
+  for (let i = 0; i < numChunks; ++i) {
+    res.push(((bigintNum >> BigInt(i * bytesPerChunk)) & msk).toString());
+  }
+  return res;
+}
+
+export function formatRoot(root: string): string {
+  let rootHex = BigInt(root).toString(16);
+  return rootHex.length % 2 === 0 ? "0x" + rootHex : "0x0" + rootHex;
+}
