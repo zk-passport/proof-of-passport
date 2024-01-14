@@ -33,6 +33,7 @@ target 'ProofOfPassport' do
   
   use_frameworks!
   pod 'NFCPassportReader', git: 'https://github.com/0xturboblitz/NFCPassportReader.git', commit: '07b3662702834676b547718998fa377fe5f00776'
+  pod 'MoproKit', :path => './mopro/mopro-ios/MoproKit'
 
   use_react_native!(
     :path => config[:reactNativePath],
