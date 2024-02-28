@@ -52,5 +52,7 @@
 		<string>A0000002472001</string>
 		<string>00000000000000</string>
 	</array>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 </dict>
 </plist>
