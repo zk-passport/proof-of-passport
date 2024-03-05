@@ -37,7 +37,7 @@ class Prover: NSObject {
       print("Private Frameworks Path: \(Bundle.main.privateFrameworksPath ?? "Not Found")")
       
       if let frameworksPath = Bundle.main.privateFrameworksPath {
-        let dylibPath = frameworksPath + "/proof_of_passport.dylib"
+        let dylibPath = frameworksPath + "/proof_of_passport.framework"
 
         do {
           try initializeMoproDylib(dylibPath: dylibPath)

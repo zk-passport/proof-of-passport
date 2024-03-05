@@ -91,7 +91,7 @@ fn main() -> Result<()> {
 
     #[cfg(feature = "dylib")]
     {
-        let _ = build_dylib(wasm_path.clone(), "proof_of_passport.dylib".to_string());
+        let _ = build_dylib(wasm_path.clone(), "proof_of_passport.framework".to_string());
     }
 
     prepare_env(zkey_path, wasm_path, arkzkey_path)?;

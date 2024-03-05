@@ -118,9 +118,10 @@ pub fn initialize() {
 // Creates a `WitnessCalculator` instance from a dylib file.
 #[cfg(feature = "dylib")]
 fn from_dylib(path: &Path) -> Mutex<WitnessCalculator> {
+    let dylib_path = path.join("proof_of_passport"); // Adjust the path as needed
     let store = Store::new(&Dylib::headless().engine());
     let module = unsafe {
-        Module::deserialize_from_file(&store, path).expect("Failed to load dylib module")
+        Module::deserialize_from_file(&store, &dylib_path).expect("Failed to load framework module")
     };
     let result =
         WitnessCalculator::from_module(module).expect("Failed to create WitnessCalculator");

@@ -1,0 +1,6 @@
+framework module proof_of_passport {
+  umbrella header "proof_of_passport.h"
+  export *
+
+  module * { export * }
+}
