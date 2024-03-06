@@ -14,7 +14,6 @@
 		1ADA5CBFFFB043C12B3C4011 /* Pods_ProofOfPassport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F81894AE401F61E2393104D /* Pods_ProofOfPassport.framework */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		905B70052A72767900AFA232 /* PassportReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905B70042A72767900AFA232 /* PassportReader.swift */; };
-		905B70072A72774000AFA232 /* PassportReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 905B70062A72774000AFA232 /* PassportReader.m */; };
 		905B700B2A72A5E900AFA232 /* masterList.pem in Resources */ = {isa = PBXBuildFile; fileRef = 905B700A2A72A5E900AFA232 /* masterList.pem */; };
 		D5B4CD952178B51C14F77614 /* Pods_ProofOfPassport_ProofOfPassportTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 455B3F561C1D3D833AB15B26 /* Pods_ProofOfPassport_ProofOfPassportTests.framework */; };
 /* End PBXBuildFile section */
@@ -45,7 +44,6 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ProofOfPassport/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		905B70032A72767800AFA232 /* ProofOfPassport-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ProofOfPassport-Bridging-Header.h"; sourceTree = "<group>"; };
 		905B70042A72767900AFA232 /* PassportReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassportReader.swift; sourceTree = "<group>"; };
-		905B70062A72774000AFA232 /* PassportReader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PassportReader.m; sourceTree = "<group>"; };
 		905B70082A729CD400AFA232 /* ProofOfPassport.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ProofOfPassport.entitlements; path = ProofOfPassport/ProofOfPassport.entitlements; sourceTree = "<group>"; };
 		905B700A2A72A5E900AFA232 /* masterList.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = masterList.pem; path = ProofOfPassport/masterList.pem; sourceTree = "<group>"; };
 		9F81894AE401F61E2393104D /* Pods_ProofOfPassport.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ProofOfPassport.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -104,7 +102,6 @@
 				13B07FB71A68108700A75B9A /* main.m */,
 				905B70042A72767900AFA232 /* PassportReader.swift */,
 				905B70032A72767800AFA232 /* ProofOfPassport-Bridging-Header.h */,
-				905B70062A72774000AFA232 /* PassportReader.m */,
 			);
 			name = ProofOfPassport;
 			sourceTree = "<group>";
@@ -392,7 +389,6 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				905B70072A72774000AFA232 /* PassportReader.m in Sources */,
 				905B70052A72767900AFA232 /* PassportReader.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -466,9 +462,10 @@
 			baseConfigurationReference = 26A432E0434B89485C7E3765 /* Pods-ProofOfPassport.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ProofOfPassport/ProofOfPassport.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 18;
 				DEVELOPMENT_TEAM = 5B29R5LYHQ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = ProofOfPassport/Info.plist;
@@ -485,7 +482,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.warroom.proofofpassport;
 				PRODUCT_NAME = ProofOfPassport;
-				SWIFT_OBJC_BRIDGING_HEADER = "ProofOfPassport-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -497,9 +494,10 @@
 			baseConfigurationReference = A1B7A34F7E4C3F2D19C5D973 /* Pods-ProofOfPassport.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ProofOfPassport/ProofOfPassport.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 18;
 				DEVELOPMENT_TEAM = 5B29R5LYHQ;
 				INFOPLIST_FILE = ProofOfPassport/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -515,7 +513,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.warroom.proofofpassport;
 				PRODUCT_NAME = ProofOfPassport;
-				SWIFT_OBJC_BRIDGING_HEADER = "ProofOfPassport-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
