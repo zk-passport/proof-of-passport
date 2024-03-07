@@ -1,4 +1,7 @@
 import {sha256} from 'js-sha256';
+import { LDSSecurityObject, DataGroupHash, LDSSecurityObjectVersion, DataGroupNumber, LdsSecurityObjectIdentifier, id_ldsSecurityObject, AttributeSet } from './asn1';
+import { AsnSerializer, AsnConvert, AsnOctetStringConverter } from "@peculiar/asn1-schema";
+import { DigestAlgorithmIdentifier, Attribute, SigningTime } from "@peculiar/asn1-cms";
 
 export function formatMrz(mrz: string) {
   const mrzCharcodes = [...mrz].map(char => char.charCodeAt(0));
@@ -42,61 +45,62 @@ export function formatAndConcatenateDataHashes(
   // Let's replace the first array with the MRZ hash
   dataHashes.shift();
   dataHashes.unshift([1, mrzHash]);
-  // concatenating dataHashes :
 
-  let concat: number[] = []
-
-  const startingSequence = [
-    48, -126, 1, 37, 2, 1, 0, 48, 11, 6, 9, 96, -122, 72, 1, 101, 3, 4, 2, 1,
-    48, -126, 1, 17,
-  ]
-
-  // console.log(`startingSequence`, startingSequence.map(byte => (byte < 0 ? byte + 256 : byte).toString(16).padStart(2, '0')).join(''));
-
-  // Starting sequence. Should be the same for everybody, but not sure
-  concat.push(...startingSequence)
+  const ldsSecurityObject = new LDSSecurityObject();
+  ldsSecurityObject.version = LDSSecurityObjectVersion.v0;
+  ldsSecurityObject.hashAlgorithm = new DigestAlgorithmIdentifier({
+    algorithm: "1.2.840.113549.1.1.11"
+  })
 
   for(const dataHash of dataHashes) {
-    // console.log(`dataHash ${dataHash[0]}`, dataHash[1].map(byte => (byte < 0 ? byte + 256 : byte).toString(16).padStart(2, '0')).join(''));
-
-    concat.push(...[48, 37, 2, 1, dataHash[0], 4, 32, ...dataHash[1]])
+    const d = new DataGroupHash();
+    d.dataGroupNumber = dataHash[0];
+    d.dataGroupHashValue = new Uint8Array(dataHash[1]).buffer;
+    ldsSecurityObject.dataGroupHashValues.push(d);
   }
 
-  return concat;
+  const s = Buffer.from(AsnSerializer.serialize(ldsSecurityObject)).toString("hex");
+  return hexToSignedBytes(s);
 }
 
 export function assembleEContent(
-  messageDigest: number[],
-  timeOfSignature: number[],
+  messageDigest: number[]
 ) {
-  const constructedEContent = [];
 
-  // Detailed description is in private file r&d.ts for now
-  // First, the tag and length, assumed to be always the same
-  constructedEContent.push(...[49, 102]);
+  const contentType = new Attribute({
+    attrType : '1.2.840.113549.1.9.3', // id_contentType
+    attrValues : [
+      AsnConvert.serialize(new LdsSecurityObjectIdentifier(id_ldsSecurityObject))
+    ]
+  })
 
-  // 1.2.840.113549.1.9.3 is RFC_3369_CONTENT_TYPE_OID
-  constructedEContent.push(
-    ...[48, 21, 6, 9, 42, -122, 72, -122, -9, 13, 1, 9, 3],
-  );
-  // 2.23.136.1.1.1 is ldsSecurityObject
-  constructedEContent.push(...[49, 8, 6, 6, 103, -127, 8, 1, 1, 1]);
+  const signingTime = new Attribute({
+    attrType : '1.2.840.113549.1.9.5', // id_signingTime
+    attrValues: [
+        AsnConvert.serialize(new SigningTime(new Date()))
+      ]
+  })
 
-  // 1.2.840.113549.1.9.5 is signing-time
-  constructedEContent.push(
-    ...[48, 28, 6, 9, 42, -122, 72, -122, -9, 13, 1, 9, 5],
-  );
-  // time of the signature
-  constructedEContent.push(...timeOfSignature);
-  // 1.2.840.113549.1.9.4 is RFC_3369_MESSAGE_DIGEST_OID
-  constructedEContent.push(
-    ...[48, 47, 6, 9, 42, -122, 72, -122, -9, 13, 1, 9, 4],
-  );
-  // TAG and length of the message digest
-  constructedEContent.push(...[49, 34, 4, 32]);
+  const _messageDigest = new Attribute({
+    attrType : '1.2.840.113549.1.9.4', // id_messageDigest
+    attrValues : [
+      AsnConvert.serialize(AsnOctetStringConverter.toASN(new Uint8Array(messageDigest)))
+    ]
+  })
 
-  constructedEContent.push(...messageDigest);
-  return constructedEContent;
+  const mySignedAttributes = new AttributeSet();
+  mySignedAttributes.push(contentType);
+  mySignedAttributes.push(signingTime);
+  mySignedAttributes.push(_messageDigest);
+
+  const s = Buffer.from(AsnSerializer.serialize(mySignedAttributes)).toString("hex");
+  return hexToSignedBytes(s);
+}
+
+function toHexString(byteArray : number[]) {
+  return Array.from(byteArray, function(byte) {
+    return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+  }).join('')
 }
 
 export function toUnsigned(byte: number) {

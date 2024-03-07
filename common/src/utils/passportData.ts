@@ -31,7 +31,6 @@ const sampleDataHashes = [
     [ 76, 123, -40, 13, 51, -29, 72, -11, 59, -63, -18, -90, 103, 49, 23, -92, -85, -68, -62, -59, -100, -69, -7, 28, -58, 95, 69, 15, -74, 56, 54, 38]
   ]
 ]
-const sampleTimeOfSig = [49, 15, 23, 13, 49, 57, 49, 50, 49, 54, 49, 55, 50, 50, 51, 56, 90]
 
 export function genSampleData(): PassportData {
   const mrzHash = hash(formatMrz(sampleMRZ));
@@ -40,10 +39,8 @@ export function genSampleData(): PassportData {
     mrzHash,
     sampleDataHashes as [number, number[]][],
   );
-  const eContent = assembleEContent(
-    hash(concatenatedDataHashes),
-    sampleTimeOfSig,
-  );
+  const messageDigest = hash(concatenatedDataHashes);
+  const eContent = assembleEContent(messageDigest);
 
   const rsa = forge.pki.rsa;
   const privKey = rsa.generateKeyPair({bits: 2048}).privateKey;

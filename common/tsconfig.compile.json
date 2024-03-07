@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "lib": [
+        "ES2019"
+      ],
+      "incremental": true,
+      "target": "ES2019",
+      "module": "CommonJS",
+      "moduleResolution": "node",
+      "importHelpers": true,
+      "strict": true,
+      "experimentalDecorators": true,
+      "noImplicitOverride": true
+    }
+  }
