@@ -392,7 +392,8 @@ public protocol MoproCircomProtocol {
     
 }
 
-public class MoproCircom: MoproCircomProtocol {
+@objc(MoproCircom)
+public class MoproCircom: NSObject, MoproCircomProtocol {
     fileprivate let pointer: UnsafeMutableRawPointer
 
     // TODO: We'd like this to be `private` but for Swifty reasons,
@@ -401,7 +402,7 @@ public class MoproCircom: MoproCircomProtocol {
     required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
         self.pointer = pointer
     }
-    public convenience init()  {
+    public override convenience init()  {
         self.init(unsafeFromRawPointer: try! rustCall() {
     uniffi_mopro_ffi_fn_constructor_moprocircom_new($0)
 })
@@ -410,7 +411,6 @@ public class MoproCircom: MoproCircomProtocol {
     deinit {
         try! rustCall { uniffi_mopro_ffi_fn_free_moprocircom(pointer, $0) }
     }
-
     
 
     
