@@ -287,7 +287,7 @@ private func uniffiCheckCallStatus(
             }
 
         case CALL_CANCELLED:
-                throw CancellationError()
+                throw UniffiInternalError.rustPanic("Call Cancelled")
 
         default:
             throw UniffiInternalError.unexpectedRustCallStatusCode
