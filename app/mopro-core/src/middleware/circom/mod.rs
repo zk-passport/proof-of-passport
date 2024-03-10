@@ -95,6 +95,7 @@ pub fn initialize(dylib_path: &Path) {
         .set(from_dylib(dylib_path))
         .expect("Failed to set WITNESS_CALCULATOR");
 
+
     println!("witness calculator initialized");
 
     // Initialize ARKZKEY
@@ -118,12 +119,22 @@ pub fn initialize() {
 // Creates a `WitnessCalculator` instance from a dylib file.
 #[cfg(feature = "dylib")]
 fn from_dylib(path: &Path) -> Mutex<WitnessCalculator> {
+    // Initialize WITNESS_CALCULATOR using the binary
     let store = Store::new(&Dylib::headless().engine());
     let module = unsafe {
-        Module::deserialize_from_file(&store, path).expect("Failed to load dylib module")
+        Module::deserialize_from_file(&store, path).expect("Failed to load binary module")
     };
-    let result =
-        WitnessCalculator::from_module(module).expect("Failed to create WitnessCalculator");
+    let result = WitnessCalculator::from_module(module).expect("Failed to create WitnessCalculator");
+    // let mut locked_witness_calculator = WITNESS_CALCULATOR.lock().expect("Failed to acquire lock");
+    // *locked_witness_calculator = Some(Mutex::new(witness_calculator));
+
+        
+    // let store = Store::new(&Dylib::headless().engine());
+    // let module = unsafe {
+    //     Module::deserialize_from_file(&store, path).expect("Failed to load dylib module")
+    // };
+    // let result =
+    //     WitnessCalculator::from_module(module).expect("Failed to create WitnessCalculator");
 
     Mutex::new(result)
 }

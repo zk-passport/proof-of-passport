@@ -37,7 +37,7 @@ class Prover: NSObject {
       print("Private Frameworks Path: \(Bundle.main.privateFrameworksPath ?? "Not Found")")
       
       if let frameworksPath = Bundle.main.privateFrameworksPath {
-        let dylibPath = frameworksPath + "/proof_of_passport.dylib"
+        let dylibPath = frameworksPath + "/proof_of_passport.framework/proof_of_passport"
 
         do {
           try initializeMoproDylib(dylibPath: dylibPath)
@@ -82,42 +82,42 @@ class Prover: NSObject {
       // inputs["pubkey"] = pubkey;
       // inputs["address"] = address;
 
-      print(inputs)
+      // print(inputs)
       
-      let start = CFAbsoluteTimeGetCurrent()
+      // let start = CFAbsoluteTimeGetCurrent()
 
-      // Generate Proof
-      let generateProofResult = try generateProof2(circuitInputs: inputs)
-      assert(!generateProofResult.proof.isEmpty, "Proof should not be empty")
+      // // Generate Proof
+      // let generateProofResult = try generateProof2(circuitInputs: inputs)
+      // assert(!generateProofResult.proof.isEmpty, "Proof should not be empty")
 
-      // Record end time and compute duration
-      let end = CFAbsoluteTimeGetCurrent()
-      let timeTaken = end - start
-      print("Proof generation took \(timeTaken) seconds.")
+      // // Record end time and compute duration
+      // let end = CFAbsoluteTimeGetCurrent()
+      // let timeTaken = end - start
+      // print("Proof generation took \(timeTaken) seconds.")
 
-      // Store the generated proof and public inputs for later verification
-      print("generateProofResult", generateProofResult)
-      generatedProof = generateProofResult.proof
-      publicInputs = generateProofResult.inputs
+      // // Store the generated proof and public inputs for later verification
+      // print("generateProofResult", generateProofResult)
+      // generatedProof = generateProofResult.proof
+      // publicInputs = generateProofResult.inputs
 
-      // Convert Data to array of bytes
-      let proofBytes = [UInt8](generateProofResult.proof)
-      let inputsBytes = [UInt8](generateProofResult.inputs)
+      // // Convert Data to array of bytes
+      // let proofBytes = [UInt8](generateProofResult.proof)
+      // let inputsBytes = [UInt8](generateProofResult.inputs)
 
-      print("proofBytes", proofBytes)
-      print("inputsBytes", inputsBytes)
+      // print("proofBytes", proofBytes)
+      // print("inputsBytes", inputsBytes)
 
-      // Create a dictionary with byte arrays
-      let resultDict: [String: [UInt8]] = [
-          "proof": proofBytes,
-          "inputs": inputsBytes
-      ]
+      // // Create a dictionary with byte arrays
+      // let resultDict: [String: [UInt8]] = [
+      //     "proof": proofBytes,
+      //     "inputs": inputsBytes
+      // ]
 
-      // Serialize dictionary to JSON
-      let jsonData = try JSONSerialization.data(withJSONObject: resultDict, options: [])
-      let jsonString = String(data: jsonData, encoding: .utf8)!
+      // // Serialize dictionary to JSON
+      // let jsonData = try JSONSerialization.data(withJSONObject: resultDict, options: [])
+      // let jsonString = String(data: jsonData, encoding: .utf8)!
 
-      resolve(jsonString)
+      // resolve(jsonString)
     } catch let error as MoproError {
       print("MoproError: \(error)")
       reject("PROVER", "An error occurred during proof generation", error)
@@ -130,24 +130,24 @@ class Prover: NSObject {
   @objc(runVerifyAction:reject:)
   func runVerifyAction(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     // Logic for verify
-    guard let proof = generatedProof,
-      let publicInputs = publicInputs else {
-      print("Proof has not been generated yet.")
-      return
-    }
-    do {
-      // Verify Proof
-      let isValid = try verifyProof2(proof: proof, publicInput: publicInputs)
-      assert(isValid, "Proof verification should succeed")
+    // guard let proof = generatedProof,
+    //   let publicInputs = publicInputs else {
+    //   print("Proof has not been generated yet.")
+    //   return
+    // }
+    // do {
+    //   // Verify Proof
+    //   let isValid = try verifyProof2(proof: proof, publicInput: publicInputs)
+    //   assert(isValid, "Proof verification should succeed")
 
-      print("Proof verification succeeded.")
-      resolve(isValid)
-    } catch let error as MoproError {
-      print("MoproError: \(error)")
-      reject("PROVER", "An error occurred during proof verification", error)
-    } catch {
-      print("Unexpected error: \(error)")
-      reject("PROVER", "An error occurred during proof verification", error)
-    }
+    //   print("Proof verification succeeded.")
+    //   resolve(isValid)
+    // } catch let error as MoproError {
+    //   print("MoproError: \(error)")
+    //   reject("PROVER", "An error occurred during proof verification", error)
+    // } catch {
+    //   print("Unexpected error: \(error)")
+    //   reject("PROVER", "An error occurred during proof verification", error)
+    // }
   }
 }
