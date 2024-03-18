@@ -14,14 +14,12 @@ import {
   DEFAULT_DOE
 } from '@env';
 import { PassportData } from '../common/src/utils/types';
-import { AWS_ENDPOINT, MAX_DATAHASHES_LEN } from '../common/src/constants/constants';
+import { RELAYER_URL, MAX_DATAHASHES_LEN } from '../common/src/constants/constants';
 import {
-  hash,
   toUnsignedByte,
   bytesToBigDecimal,
   formatMrz,
   splitToWords,
-  hexStringToSignedIntArray,
   formatProofIOS,
   formatInputsIOS
 } from '../common/src/utils/utils';
@@ -29,7 +27,7 @@ import { samplePassportData } from '../common/src/utils/passportDataStatic';
 import { sha256Pad } from '../common/src/utils/sha256Pad';
 
 import "@ethersproject/shims"
-import { ethers, ZeroAddress } from "ethers";
+import { ethers } from "ethers";
 import axios from 'axios';
 import groth16ExportSolidityCallData from './utils/snarkjs';
 import contractAddresses from "./deployments/addresses.json"
@@ -67,6 +65,7 @@ function App(): JSX.Element {
   const [proof, setProof] = useState<{ proof: string, inputs: string } | null>(null);
   const [minting, setMinting] = useState<boolean>(false);
   const [mintText, setMintText] = useState<string>("");
+  const [initCompleted, setInitCompleted] = useState(false);
 
   const [disclosure, setDisclosure] = useState({
     issuing_state: false,
@@ -133,9 +132,19 @@ function App(): JSX.Element {
 
   useEffect(() => {
     if (Platform.OS !== 'android') {
-      NativeModules.Prover.runInitAction() // for mopro, ios only rn
+      initMopro()
     }
   }, []);
+
+  const initMopro = async () => {
+    try {
+      await NativeModules.Prover.runInitAction();
+      setInitCompleted(true);
+      console.log('Mopro initialization completed');
+    } catch (error) {
+      console.error('Mopro initialization failed:', error);
+    }
+  };
 
   async function handleResponseIOS(response: any) {
     const parsed = JSON.parse(response);
@@ -395,7 +404,6 @@ function App(): JSX.Element {
       console.log("res", res);
       const parsedResponse = JSON.parse(res);
       console.log('parsedResponse', parsedResponse);
-      console.log('parsedResponse.duration', parsedResponse.duration);
 
       const deserializedProof = JSON.parse(parsedResponse.serialized_proof);
       console.log('deserializedProof', deserializedProof);
@@ -413,10 +421,27 @@ function App(): JSX.Element {
   }
 
   async function proveIOS(inputs: any) {
+    // Wait for initialization to complete with a 1 minute timeout
+    const waitForInit = async (timeoutMs = 60000) => {
+      const startTime = Date.now();
+      while (!initCompleted && Date.now() - startTime < timeoutMs) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
+      }
+      return initCompleted;
+    };
+
+    const initSuccess = await waitForInit();
+    if (!initSuccess) {
+      console.log('Initialization did not complete within the timeout. Please check if Mopro is initializing properly.');
+      Toast.show({
+        type: 'error',
+        text1: 'Initialization failed to complete before timeout',
+      })
+      return;
+    }
+    
     try {
       const startTime = Date.now();
-      console.log('running mopro init action')
-      await NativeModules.Prover.runInitAction()
       console.log('running mopro prove action')
       const response = await NativeModules.Prover.runProveAction({
         ...inputs,
@@ -429,9 +454,9 @@ function App(): JSX.Element {
       const endTime = Date.now();
       setProofTime(endTime - startTime);
 
-      // console.log('running mopro verify action')
-      // const res = await NativeModules.Prover.runVerifyAction()
-      // console.log('verify response:', res)
+      console.log('running mopro verify action')
+      const res = await NativeModules.Prover.runVerifyAction()
+      console.log('verify response:', res)
 
       setProof({
         proof: JSON.stringify(formatProofIOS(parsedResponse.proof)),
@@ -482,7 +507,7 @@ function App(): JSX.Element {
         .mint.populateTransaction(...callData);
       console.log('transactionRequest', transactionRequest);
 
-      const response = await axios.post(AWS_ENDPOINT, {
+      const response = await axios.post(RELAYER_URL, {
         chain: "sepolia",
         tx_data: transactionRequest
       });
@@ -565,6 +590,7 @@ function App(): JSX.Element {
           setDateOfBirth={setDateOfBirth}
           dateOfExpiry={dateOfExpiry}
           setDateOfExpiry={setDateOfExpiry}
+          initCompleted={initCompleted}
         />
       </YStack>
       <Toast config={toastConfig} />

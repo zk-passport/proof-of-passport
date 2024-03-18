@@ -35,6 +35,7 @@ interface MainScreenProps {
   setDateOfBirth: (date: string) => void;
   dateOfExpiry: string;
   setDateOfExpiry: (date: string) => void;
+  initCompleted: boolean;
 }
 
 const MainScreen: React.FC<MainScreenProps> = ({
@@ -58,7 +59,8 @@ const MainScreen: React.FC<MainScreenProps> = ({
   dateOfBirth,
   setDateOfBirth,
   dateOfExpiry,
-  setDateOfExpiry
+  setDateOfExpiry,
+  initCompleted
 }) => {
   const [NFCScanIsOpen, setNFCScanIsOpen] = useState(false);
   const [SettingsIsOpen, setSettingsIsOpen] = useState(false);
@@ -272,28 +274,33 @@ const MainScreen: React.FC<MainScreenProps> = ({
 
             <YStack px="$3" pb="$5" flex={1} >
               <XStack mt="$3" gap="$2">
-                <H2>Help</H2>
+                <H2>Info</H2>
                 <HelpCircle mt="$1" alignSelf='center' size="$2" />
               </XStack>
               <YStack flex={1} jc="space-evenly">
 
                 <YStack >
-                  <H4>How to scan your passport ?</H4>
-                  <Text>1. Find the location of the NFC chip of your passport.</Text>
-                  <Text>If you are struggling <Text color="#3185FC" onPress={() => Linking.openURL('https://zk-passport.github.io/posts/where-is-my-chip/')}>this post <ExternalLink color="#3185FC" size={12} /></Text> will help you to find it.</Text>
-                  <Text mt="$2">2. Find where is the NFC lector of your phone. <Button pl="$1" unstyled h="$1" w="$3" jc="flex-end" onPress={() => Linking.openURL('https://zk-passport.github.io/posts/locate-NFC-reader/')}>
-                    <ExternalLink color="#3185FC" size={12} />
-                  </Button></Text>
-                  <Text mt="$2">3. Keep both part pressed together while NFC popup shows up adn don't move</Text>
+                  <H4>How do I scan my passport ?</H4>
+                  <Text>1. Find the location of the NFC chip of your passport. Most of the time, it will be in the back cover. If you have an American passport, the front and back cover are NFC-protected, so you have to open your passport and scan the back cover from the inside.
+                    <Button pl="$1" unstyled h="$1" w="$3" jc="flex-end" onPress={() => Linking.openURL('https://zk-passport.github.io/posts/where-is-my-chip/')}>
+                      <ExternalLink color="#3185FC" size={12} />
+                    </Button>
+                  </Text>
+                  <Text mt="$2">2. Find the location of the NFC reader of your phone. On an iPhone, it should be on the upper part of your phone. On Android phones, it should be in the center.
+                    <Button pl="$1" unstyled h="$1" w="$3" jc="flex-end" onPress={() => Linking.openURL('https://zk-passport.github.io/posts/locate-NFC-reader/')}>
+                      <ExternalLink color="#3185FC" size={12} />
+                    </Button>
+                  </Text>
+                  <Text mt="$2">3. Keep your passport pressed against your phone when the NFC popup shows up and hold still.</Text>
                 </YStack>
                 <YStack gap="$1">
                   <H4 mt="$2">Security and Privacy</H4>
-                  <Text>This app generates Zero-Knowledge proofs ...</Text>
+                  <Text>Proof of Passport uses zero-knowledge cryptography to allow you to prove facts about yourself like humanity, nationality or age without disclosing sensitive information. It works by generating a proof showing your passport data has been correctly signed by a government authority without revealing the signature.</Text>
                 </YStack>
                 <YStack gap="$2">
-                  <H4 mt="$1">What are ZK proofs ?</H4>
+                  <H4 mt="$1">What are zero-knowledge proofs ?</H4>
 
-                  <Text>Zero Knowledge proofs are ...</Text>
+                  <Text>Zero-knowledge proofs rely on mathematical magic tricks to show the correctness of some computation while hiding some inputs of its inputs. In our case, the proof shows the passport has not been forged, but allows you to hide sensitive data.</Text>
                 </YStack>
 
                 <YStack gap="$2">
@@ -363,7 +370,9 @@ const MainScreen: React.FC<MainScreenProps> = ({
             handleMint={handleMint}
             hideData={hideData}
             ens={ens}
-            setEns={setEns} />
+            setEns={setEns}
+            initCompleted={initCompleted}
+          />
         </Tabs.Content>
         <Separator />
         {(!keyboardVisible || Platform.OS == "ios") &&

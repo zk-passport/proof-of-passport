@@ -63,8 +63,8 @@ contract ProofOfPassport is ERC721Enumerable, Ownable {
     ) public {
         require(verifier.verifyProof(a, b, c, inputs), "Invalid Proof");
 
-        // check that the nullifier has not been used before
-        require(!nullifiers[inputs[3]], "Signature already nullified");
+        // check that the nullifier has not been used before. Commented out for beta version.
+        // require(!nullifiers[inputs[3]], "Signature already nullified");
 
 
 

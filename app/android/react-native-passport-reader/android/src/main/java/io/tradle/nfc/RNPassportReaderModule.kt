@@ -620,18 +620,6 @@ class RNPassportReaderModule(private val reactContext: ReactApplicationContext) 
 
     //-------------functions related to calling rust lib----------------//
 
-    // Declare native method
-    external fun callRustCode(): String
-
-    @ReactMethod
-    fun callRustLib(callback: Callback) {
-        // Call the Rust function
-        val resultFromRust = callRustCode()
-        
-        // Return the result to JavaScript through the callback
-        callback.invoke(null, resultFromRust)
-    }
-
     external fun provePassport(
         mrz: List<String>,
         reveal_bitmap: List<String>,
@@ -677,6 +665,13 @@ class RNPassportReaderModule(private val reactContext: ReactApplicationContext) 
 
     @ReactMethod
     fun downloadFile(url: String, fileName: String, promise: Promise) {
+        val filePath = File(reactContext.filesDir, fileName).absolutePath
+
+        if (File(filePath).exists()) {
+            promise.resolve(filePath)
+            return
+        }
+    
         val client = OkHttpClient()
         val request = Request.Builder().url(url).build()
     

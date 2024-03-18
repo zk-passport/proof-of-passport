@@ -8,6 +8,11 @@ name = "ark_circom_passport"
 path = "src/passport.rs"
 crate-type = ["cdylib"]
 
+
+[features]
+download_arkzkey = []
+
+
 # [profile.dev]
 # opt-level = 3
 

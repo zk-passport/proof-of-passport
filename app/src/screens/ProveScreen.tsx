@@ -6,6 +6,7 @@ import { getFirstName, formatDuration } from '../../utils/utils';
 import { attributeToPosition } from '../../../common/src/constants/constants';
 import { Steps } from '../utils/utils';
 import USER from '../images/user.png'
+import arkzkeyUrl from '../../deployments/arkzkeyUrl.json'
 import ProofGrid from '../components/ProofGrid';
 import { App } from '../utils/AppClass';
 import { Keyboard, Platform } from 'react-native';
@@ -13,7 +14,8 @@ import { DEFAULT_ADDRESS } from '@env';
 const { ethers } = require('ethers');
 import Clipboard from '@react-native-community/clipboard';
 import Toast from 'react-native-toast-message';
-const fileName = "passport.arkzkey"
+
+const fileName = "proof_of_passport_final.arkzkey"
 const path = "/data/user/0/com.proofofpassport/files/" + fileName
 
 interface ProveScreenProps {
@@ -33,6 +35,7 @@ interface ProveScreenProps {
   hideData: boolean;
   ens: string;
   setEns: (ens: string) => void;
+  initCompleted: boolean;
 }
 
 const ProveScreen: React.FC<ProveScreenProps> = ({
@@ -51,7 +54,8 @@ const ProveScreen: React.FC<ProveScreenProps> = ({
   handleMint,
   hideData,
   ens,
-  setEns
+  setEns,
+  initCompleted
 }) => {
   const [zkeyLoading, setZkeyLoading] = useState(false);
   const [zkeyLoaded, setZkeyLoaded] = useState(false);
@@ -88,7 +92,7 @@ const ProveScreen: React.FC<ProveScreenProps> = ({
     try {
       console.log('Downloading file...')
       const result = await NativeModules.RNPassportReader.downloadFile(
-        'https://current-pop-zkey.s3.eu-north-1.amazonaws.com/proof_of_passport_final_dynamic_dg_support.arkzkey',
+        arkzkeyUrl.arkzkeyUrl,
         fileName
       );
       console.log("Download successful");
@@ -280,22 +284,41 @@ const ProveScreen: React.FC<ProveScreenProps> = ({
             <XStack f={1} />
             <XStack f={1} />
             <XStack f={1} />
-            <Button disabled={zkeyLoading || (address == ethers.ZeroAddress)} borderRadius={100} onPress={() => { (!zkeyLoaded && Platform.OS != "ios") ? downloadZkey() : handleProve(path) }} mt="$8" backgroundColor={address == ethers.ZeroAddress ? "#cecece" : "#3185FC"} alignSelf='center' >
-              {!zkeyLoaded && Platform.OS != "ios" ? (
+            {
+              (!keyboardVisible || Platform.OS == "ios") && (
+              <Button
+                disabled={zkeyLoading || address == ethers.ZeroAddress || (!initCompleted && Platform.OS == "ios")}
+                borderRadius={100}
+                onPress={
+                  () => {
+                    (!zkeyLoaded && Platform.OS != "ios")
+                      ? downloadZkey()
+                      : handleProve(path)
+                  }
+                }
+                mt="$8"
+                backgroundColor={address == ethers.ZeroAddress ? "#cecece" : "#3185FC"}
+                alignSelf='center'
+              >
+                {!zkeyLoaded && Platform.OS != "ios" ? (
+                  <XStack ai="center" gap="$2">
+                    {zkeyLoading && <Spinner />}
+                    <Text color="white" fow="bold">{zkeyLoading ? "Downloading ZK circuit" : "Download ZK circuit"}</Text>
+                  </XStack>
+                ) : !initCompleted && Platform.OS == "ios" ? (
+                  <Text color="white" fow="bold">Initializing...</Text>
+                ) : generatingProof ? (
+                  <XStack ai="center" gap="$1">
+                    <Spinner />
+                    <Text color="white" marginLeft="$2" fow="bold" >Generating ZK proof</Text>
+                  </XStack>
+                ) : (
+                  <Text color="white" fow="bold">Generate ZK proof</Text>
+                )}
 
-                <XStack ai="center" gap="$2">
-                  {zkeyLoading && <Spinner />}
-                  <Text color="white" fow="bold">{zkeyLoading ? "Downloading ZK circuit" : "Download ZK circuit"}</Text>
-                </XStack>
-              ) : generatingProof ? (
-                <XStack ai="center" gap="$1">
-                  <Spinner />
-                  <Text color="white" marginLeft="$2" fow="bold" >Generating ZK proof</Text>
-                </XStack>
-              ) : (
-                <Text color="white" fow="bold">Generate ZK proof</Text>
-              )}
-            </Button>
+              </Button>
+              )
+            }
             {(height > 750) && <Text fontSize={10} color={generatingProof ? "gray" : "white"} pb="$2" alignSelf='center'>This operation can take up to 2 mn, phone may freeze during this time</Text>}
           </YStack>
 

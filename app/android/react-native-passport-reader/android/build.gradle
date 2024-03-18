@@ -60,4 +60,11 @@ cargo {
     targets = ["arm64"]  // Those work
     apiLevel = 29
     profile = 'release'
+    
+    // Check if the Gradle project property `downloadArkzkey` is set and adjust features accordingly
+    if (project.hasProperty('downloadArkzkey') && project.downloadArkzkey == 'true') {
+        features {
+            defaultAnd("download_arkzkey")
+        }
+    }
 }

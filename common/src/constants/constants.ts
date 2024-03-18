@@ -1,4 +1,4 @@
-export const AWS_ENDPOINT = "https://0pw5u65m3a.execute-api.eu-north-1.amazonaws.com/api-stage/mint"
+export const RELAYER_URL = "https://0pw5u65m3a.execute-api.eu-north-1.amazonaws.com/api-stage/mint"
 
 export const attributeToPosition: { [key: string]: number[] } = {
   issuing_state: [2, 4],

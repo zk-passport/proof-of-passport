@@ -78,15 +78,15 @@ static ARKZKEY: Lazy<(ProvingKey<Bn254>, ConstraintMatrices<Fr>)> = Lazy::new(||
     read_arkzkey_from_bytes(ARKZKEY_BYTES).expect("Failed to read arkzkey")
 });
 
-const WASM: &[u8] = include_bytes!(env!("BUILD_RS_WASM_FILE"));
+// const WASM: &[u8] = include_bytes!(env!("BUILD_RS_WASM_FILE"));
 
-/// `WITNESS_CALCULATOR` is a lazily initialized, thread-safe singleton of type `WitnessCalculator`.
-/// `OnceCell` ensures that the initialization occurs exactly once, and `Mutex` allows safe shared
-/// access from multiple threads.
+// `WITNESS_CALCULATOR` is a lazily initialized, thread-safe singleton of type `WitnessCalculator`.
+// `OnceCell` ensures that the initialization occurs exactly once, and `Mutex` allows safe shared
+// access from multiple threads.
 static WITNESS_CALCULATOR: OnceCell<Mutex<WitnessCalculator>> = OnceCell::new();
 
-/// Initializes the `WITNESS_CALCULATOR` singleton with a `WitnessCalculator` instance created from
-/// a specified dylib file (WASM circuit). Also initialize `ZKEY`.
+// Initializes the `WITNESS_CALCULATOR` singleton with a `WitnessCalculator` instance created from
+// a specified dylib file (WASM circuit). Also initialize `ZKEY`.
 #[cfg(feature = "dylib")]
 pub fn initialize(dylib_path: &Path) {
     println!("Initializing dylib: {:?}", dylib_path);
@@ -94,6 +94,8 @@ pub fn initialize(dylib_path: &Path) {
     WITNESS_CALCULATOR
         .set(from_dylib(dylib_path))
         .expect("Failed to set WITNESS_CALCULATOR");
+
+    println!("witness calculator initialized");
 
     // Initialize ARKZKEY
     // TODO: Speed this up even more
@@ -113,7 +115,7 @@ pub fn initialize() {
     println!("Initializing arkzkey took: {:.2?}", now.elapsed());
 }
 
-/// Creates a `WitnessCalculator` instance from a dylib file.
+// Creates a `WitnessCalculator` instance from a dylib file.
 #[cfg(feature = "dylib")]
 fn from_dylib(path: &Path) -> Mutex<WitnessCalculator> {
     let store = Store::new(&Dylib::headless().engine());
@@ -137,8 +139,8 @@ pub fn arkzkey() -> &'static (ProvingKey<Bn254>, ConstraintMatrices<Fr>) {
     &ARKZKEY
 }
 
-/// Provides access to the `WITNESS_CALCULATOR` singleton, initializing it if necessary.
-/// It expects the path to the dylib file to be set in the `CIRCUIT_WASM_DYLIB` environment variable.
+// Provides access to the `WITNESS_CALCULATOR` singleton, initializing it if necessary.
+// It expects the path to the dylib file to be set in the `CIRCUIT_WASM_DYLIB` environment variable.
 #[cfg(feature = "dylib")]
 #[must_use]
 pub fn witness_calculator() -> &'static Mutex<WitnessCalculator> {
@@ -156,17 +158,17 @@ pub fn witness_calculator() -> &'static Mutex<WitnessCalculator> {
     })
 }
 
-#[cfg(not(feature = "dylib"))]
-#[must_use]
-pub fn witness_calculator() -> &'static Mutex<WitnessCalculator> {
-    WITNESS_CALCULATOR.get_or_init(|| {
-        let store = Store::default();
-        let module = Module::from_binary(&store, WASM).expect("WASM should be valid");
-        let result =
-            WitnessCalculator::from_module(module).expect("Failed to create WitnessCalculator");
-        Mutex::new(result)
-    })
-}
+// #[cfg(not(feature = "dylib"))]
+// #[must_use]
+// pub fn witness_calculator() -> &'static Mutex<WitnessCalculator> {
+//     WITNESS_CALCULATOR.get_or_init(|| {
+//         let store = Store::default();
+//         let module = Module::from_binary(&store, WASM).expect("WASM should be valid");
+//         let result =
+//             WitnessCalculator::from_module(module).expect("Failed to create WitnessCalculator");
+//         Mutex::new(result)
+//     })
+// }
 
 pub fn generate_proof2(
     inputs: CircuitInputs,

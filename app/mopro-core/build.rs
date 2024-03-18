@@ -89,6 +89,11 @@ fn main() -> Result<()> {
 
     println!("cargo:warning=arkzkey_path: {}", arkzkey_path);
 
+    #[cfg(feature = "dylib")]
+    {
+        let _ = build_dylib(wasm_path.clone(), "proof_of_passport.dylib".to_string());
+    }
+
     prepare_env(zkey_path, wasm_path, arkzkey_path)?;
 
     Ok(())

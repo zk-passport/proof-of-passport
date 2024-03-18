@@ -8,9 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* ProofOfPassportTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ProofOfPassportTests.m */; };
-		057DFC5F2B56DC0D003D24A3 /* libmopro_ffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 057DFC5E2B56DC0D003D24A3 /* libmopro_ffi.a */; };
-		05BD9DCC2B548AA900823023 /* MoproKit in Resources */ = {isa = PBXBuildFile; fileRef = 05BD9DCB2B548AA900823023 /* MoproKit */; };
-		05BD9DCE2B554FA300823023 /* libmopro_ffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 05BD9DCD2B554FA300823023 /* libmopro_ffi.a */; };
+		0514E8BF2B8E669400202D70 /* proof_of_passport.dylib in Copy Files */ = {isa = PBXBuildFile; fileRef = 0514E8BB2B8E656C00202D70 /* proof_of_passport.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		0514E8C22B8E792200202D70 /* proof_of_passport.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0514E8B72B8E63D500202D70 /* proof_of_passport.dylib */; };
 		05EDEDC62B52D25D00AA51AD /* Prover.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EDEDC42B52D25D00AA51AD /* Prover.m */; };
 		05EDEDC72B52D25D00AA51AD /* Prover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05EDEDC52B52D25D00AA51AD /* Prover.swift */; };
 		0651723A94C70A2B31E3E4F8 /* Pods_ProofOfPassport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAAF621B99F62C9ED35AA07 /* Pods_ProofOfPassport.framework */; };
@@ -38,14 +37,28 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		0514E8BE2B8E667B00202D70 /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				0514E8BF2B8E669400202D70 /* proof_of_passport.dylib in Copy Files */,
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		00E356EE1AD99517003FC87E /* ProofOfPassportTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProofOfPassportTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* ProofOfPassportTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProofOfPassportTests.m; sourceTree = "<group>"; };
-		057DFC5E2B56DC0D003D24A3 /* libmopro_ffi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmopro_ffi.a; path = MoproKit/Libs/libmopro_ffi.a; sourceTree = "<group>"; };
-		05A0773D2B5333CE0037E489 /* MoproKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = MoproKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0514E8B72B8E63D500202D70 /* proof_of_passport.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = proof_of_passport.dylib; path = MoproKit/Libs/proof_of_passport.dylib; sourceTree = "<group>"; };
+		0514E8BB2B8E656C00202D70 /* proof_of_passport.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = proof_of_passport.dylib; path = MoproKit/Libs/proof_of_passport.dylib; sourceTree = "<group>"; };
+		0514E8C02B8E788600202D70 /* libmopro_ffi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmopro_ffi.dylib; path = MoproKit/Libs/libmopro_ffi.dylib; sourceTree = "<group>"; };
 		05BD9DCB2B548AA900823023 /* MoproKit */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MoproKit; sourceTree = "<group>"; };
-		05BD9DCD2B554FA300823023 /* libmopro_ffi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmopro_ffi.a; path = MoproKit/Libs/libmopro_ffi.a; sourceTree = "<group>"; };
 		05EDEDC42B52D25D00AA51AD /* Prover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Prover.m; sourceTree = "<group>"; };
 		05EDEDC52B52D25D00AA51AD /* Prover.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Prover.swift; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* ProofOfPassport.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProofOfPassport.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -86,9 +99,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0514E8C22B8E792200202D70 /* proof_of_passport.dylib in Frameworks */,
 				0651723A94C70A2B31E3E4F8 /* Pods_ProofOfPassport.framework in Frameworks */,
-				05BD9DCE2B554FA300823023 /* libmopro_ffi.a in Frameworks */,
-				057DFC5F2B56DC0D003D24A3 /* libmopro_ffi.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,13 +131,12 @@
 				05EDEDC52B52D25D00AA51AD /* Prover.swift */,
 				905B700A2A72A5E900AFA232 /* masterList.pem */,
 				905B70082A729CD400AFA232 /* ProofOfPassport.entitlements */,
-				057DFC5E2B56DC0D003D24A3 /* libmopro_ffi.a */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				05BD9DCB2B548AA900823023 /* MoproKit */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
+				0514E8BB2B8E656C00202D70 /* proof_of_passport.dylib */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
-				05BD9DCD2B554FA300823023 /* libmopro_ffi.a */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				905B70042A72767900AFA232 /* PassportReader.swift */,
@@ -142,7 +153,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				05A0773D2B5333CE0037E489 /* MoproKit.framework */,
+				0514E8B72B8E63D500202D70 /* proof_of_passport.dylib */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				3DAAF621B99F62C9ED35AA07 /* Pods_ProofOfPassport.framework */,
 				CFAE0EE7E1942128592D0CC4 /* Pods_ProofOfPassport_ProofOfPassportTests.framework */,
@@ -160,6 +171,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				0514E8C02B8E788600202D70 /* libmopro_ffi.dylib */,
 				13B07FAE1A68108700A75B9A /* ProofOfPassport */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* ProofOfPassportTests */,
@@ -226,6 +238,7 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				A8CC45FE941CED993895A21C /* [CP] Embed Pods Frameworks */,
+				0514E8BE2B8E667B00202D70 /* Copy Files */,
 			);
 			buildRules = (
 			);
@@ -285,7 +298,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				905B700B2A72A5E900AFA232 /* masterList.pem in Resources */,
-				05BD9DCC2B548AA900823023 /* MoproKit in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);
@@ -509,20 +521,20 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X53ZR86F22;
+				DEVELOPMENT_TEAM = 5B29R5LYHQ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = ProofOfPassport/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
-					"$(PROJECT_DIR)/../../cargo/target/universal/release",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(SDKROOT)/usr/lib/swift",
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/MoproKit/Libs",
+					"\"$(SRCROOT)/\"",
 				);
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
@@ -530,7 +542,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warroom.proofofpassportdev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.warroom.proofofpassport;
 				PRODUCT_NAME = ProofOfPassport;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -547,7 +559,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ProofOfPassport/ProofOfPassport.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X53ZR86F22;
+				DEVELOPMENT_TEAM = 5B29R5LYHQ;
 				INFOPLIST_FILE = ProofOfPassport/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -559,6 +571,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/MoproKit/Libs",
+					"\"$(SRCROOT)/\"",
 				);
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
@@ -566,7 +579,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warroom.proofofpassportdev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.warroom.proofofpassport;
 				PRODUCT_NAME = ProofOfPassport;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
