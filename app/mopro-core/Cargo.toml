@@ -3,16 +3,8 @@ name = "mopro-core"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[patch.crates-io]
-# NOTE: Forked wasmer to work around memory limits
-# See https://github.com/wasmerio/wasmer/commit/09c7070
-wasmer = { git = "https://github.com/oskarth/wasmer.git", rev = "09c7070" }
-
 [features]
 default = []
-dylib = ["wasmer/dylib"]
 
 [dependencies]
 ark-circom = { git = "https://github.com/arkworks-rs/circom-compat.git" }
@@ -22,7 +14,6 @@ num-bigint = { version = "=0.4.3", default-features = false, features = [
     "rand",
 ] }
 instant = "0.1"
-wasmer = { git = "https://github.com/oskarth/wasmer.git", rev = "09c7070" }
 once_cell = "1.8"
 
 # ZKP generation
@@ -39,6 +30,9 @@ ark-groth16 = { version = "=0.4.0", default-features = false, features = [
 ] }
 ark-relations = { version = "0.4", default-features = false }
 ark-zkey = { path = "../ark-zkey" }
+witness = { git = "https://github.com/philsippl/circom-witness-rs" }
+ruint = { version = "1.10.0", features = ["rand", "serde", "ark-ff-04"] }
+ark-ff = { version = "0.4.1", default-features = false, features = ["parallel", "asm"] }
 
 # Error handling
 thiserror = "=1.0.39"
@@ -48,4 +42,3 @@ criterion = "=0.3.6"
 [build-dependencies]
 color-eyre = "0.6"
 enumset = "1.0.8"
-wasmer = { git = "https://github.com/oskarth/wasmer.git", rev = "09c7070" }

@@ -40,7 +40,7 @@ class Prover: NSObject {
         let dylibPath = frameworksPath + "/proof_of_passport.dylib"
 
         do {
-          try initializeMoproDylib(dylibPath: dylibPath)
+          try initializeMopro()
 
           // Record end time and compute duration
           let end = CFAbsoluteTimeGetCurrent()

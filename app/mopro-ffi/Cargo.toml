@@ -16,9 +16,6 @@ path = "uniffi-bindgen.rs"
 [features]
 default = []
 
-# If we enable dylib here it should be enabled in mopro-core as well
-dylib = ["mopro-core/dylib"]
-
 [patch.crates-io]
 # NOTE: Forked wasmer to work around memory limits
 # See https://github.com/wasmerio/wasmer/commit/09c7070

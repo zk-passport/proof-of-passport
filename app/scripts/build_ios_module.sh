@@ -23,16 +23,14 @@ fi
 
 
 cd mopro-core
-cargo build --release --features dylib # this will include circuits/build/proof_of_passport_final.arkzkey in the lib
+cargo build --release
 
 cd ../mopro-ffi
 echo "Building mopro-ffi static library..."
-cargo build --release --target ${ARCHITECTURE} --features dylib
+cargo build --release --target ${ARCHITECTURE}
 echo "Copying:"
 cp target/${ARCHITECTURE}/${LIB_DIR}/libmopro_ffi.a ../ios/MoproKit/Libs/
 echo "copied libmopro_ffi.a to ios/Moprokit/Libs/"
-cp ${PROJECT_DIR}/mopro-core/target/${ARCHITECTURE}/${LIB_DIR}/proof_of_passport.dylib ../ios/MoproKit/Libs/
-echo "copied proof_of_passport.dylib to ios/Moprokit/Libs/"
 
 # TODO: if functions signatures change, we have to rebuild the bindings by adapting theses lines:
 # Install uniffi-bindgen binary in mopro-ffi
@@ -52,7 +50,7 @@ echo "copied proof_of_passport.dylib to ios/Moprokit/Libs/"
 # Fix dynamic lib install paths
 # NOTE: Xcode might already do this for us
 cd ..
-install_name_tool -id @rpath/proof_of_passport.dylib ${PROJECT_DIR}/ios/MoproKit/Libs/proof_of_passport.dylib
+# install_name_tool -id @rpath/proof_of_passport.dylib ${PROJECT_DIR}/ios/MoproKit/Libs/proof_of_passport.dylib
 # this line doesn't seem required right now
 # codesign -f -s "${APPLE_SIGNING_IDENTITY}" ${PROJECT_DIR}/ios/MoproKit/Libs/proof_of_passport.dylib
 

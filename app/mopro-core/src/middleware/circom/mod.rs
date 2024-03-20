@@ -3,10 +3,11 @@ use self::{
     utils::{assert_paths_exists, bytes_to_bits},
 };
 use crate::MoproError;
+use std::str::FromStr;
+use ark_ff::PrimeField;
 
 use std::collections::HashMap;
-//use std::io::Cursor;
-use std::sync::Mutex;
+use ruint::aliases::U256;
 use std::time::Instant;
 
 use ark_bn254::{Bn254, Fr};
@@ -15,28 +16,18 @@ use ark_circom::{
     CircomCircuit,
     CircomConfig,
     CircomReduction,
-    WitnessCalculator, //read_zkey,
 };
 use ark_crypto_primitives::snark::SNARK;
 use ark_groth16::{prepare_verifying_key, Groth16, ProvingKey};
 use ark_std::UniformRand;
-
 use ark_relations::r1cs::ConstraintMatrices;
 use ark_std::rand::thread_rng;
 use color_eyre::Result;
 use core::include_bytes;
 use num_bigint::BigInt;
 use once_cell::sync::{Lazy, OnceCell};
-
-use wasmer::{Module, Store};
-
-use ark_zkey::read_arkzkey_from_bytes; //SerializableConstraintMatrices
-
-#[cfg(feature = "dylib")]
-use {
-    std::{env, path::Path},
-    wasmer::Dylib,
-};
+use ark_zkey::read_arkzkey_from_bytes;
+use witness::{init_graph, Graph};
 
 pub mod serialization;
 pub mod utils;
@@ -44,8 +35,6 @@ pub mod utils;
 type GrothBn = Groth16<Bn254>;
 
 type CircuitInputs = HashMap<String, Vec<BigInt>>;
-
-// TODO: Split up this namespace a bit, right now quite a lot of things going on
 
 pub struct CircomState {
     builder: Option<CircomBuilder<Bn254>>,
@@ -61,114 +50,45 @@ impl Default for CircomState {
 
 // NOTE: A lot of the contents of this file is inspired by github.com/worldcoin/semaphore-rs
 
-// TODO: Replace printlns with logging
-
-//const ZKEY_BYTES: &[u8] = include_bytes!(env!("BUILD_RS_ZKEY_FILE"));
-
 const ARKZKEY_BYTES: &[u8] = include_bytes!(env!("BUILD_RS_ARKZKEY_FILE"));
 
-// static ZKEY: Lazy<(ProvingKey<Bn254>, ConstraintMatrices<Fr>)> = Lazy::new(|| {
-//     let mut reader = Cursor::new(ZKEY_BYTES);
-//     read_zkey(&mut reader).expect("Failed to read zkey")
-// });
-
 static ARKZKEY: Lazy<(ProvingKey<Bn254>, ConstraintMatrices<Fr>)> = Lazy::new(|| {
-    //let mut reader = Cursor::new(ARKZKEY_BYTES);
-    // TODO: Use reader? More flexible; unclear if perf diff
     read_arkzkey_from_bytes(ARKZKEY_BYTES).expect("Failed to read arkzkey")
 });
 
-// const WASM: &[u8] = include_bytes!(env!("BUILD_RS_WASM_FILE"));
-
-// `WITNESS_CALCULATOR` is a lazily initialized, thread-safe singleton of type `WitnessCalculator`.
-// `OnceCell` ensures that the initialization occurs exactly once, and `Mutex` allows safe shared
-// access from multiple threads.
-static WITNESS_CALCULATOR: OnceCell<Mutex<WitnessCalculator>> = OnceCell::new();
-
-// Initializes the `WITNESS_CALCULATOR` singleton with a `WitnessCalculator` instance created from
-// a specified dylib file (WASM circuit). Also initialize `ZKEY`.
-#[cfg(feature = "dylib")]
-pub fn initialize(dylib_path: &Path) {
-    println!("Initializing dylib: {:?}", dylib_path);
-
-    WITNESS_CALCULATOR
-        .set(from_dylib(dylib_path))
-        .expect("Failed to set WITNESS_CALCULATOR");
-
-    println!("witness calculator initialized");
-
-    // Initialize ARKZKEY
-    // TODO: Speed this up even more
-    let now = std::time::Instant::now();
-    Lazy::force(&ARKZKEY);
-    println!("Initializing arkzkey took: {:.2?}", now.elapsed());
-}
-
-#[cfg(not(feature = "dylib"))]
 pub fn initialize() {
     println!("Initializing library with arkzkey");
-
-    // Initialize ARKZKEY
-    // TODO: Speed this up even more!
     let now = std::time::Instant::now();
     Lazy::force(&ARKZKEY);
     println!("Initializing arkzkey took: {:.2?}", now.elapsed());
 }
 
-// Creates a `WitnessCalculator` instance from a dylib file.
-#[cfg(feature = "dylib")]
-fn from_dylib(path: &Path) -> Mutex<WitnessCalculator> {
-    let store = Store::new(&Dylib::headless().engine());
-    let module = unsafe {
-        Module::deserialize_from_file(&store, path).expect("Failed to load dylib module")
-    };
-    let result =
-        WitnessCalculator::from_module(module).expect("Failed to create WitnessCalculator");
-
-    Mutex::new(result)
-}
-
-// #[must_use]
-// pub fn zkey() -> &'static (ProvingKey<Bn254>, ConstraintMatrices<Fr>) {
-//     &ZKEY
-// }
-
-// Experimental
 #[must_use]
 pub fn arkzkey() -> &'static (ProvingKey<Bn254>, ConstraintMatrices<Fr>) {
     &ARKZKEY
 }
 
-// Provides access to the `WITNESS_CALCULATOR` singleton, initializing it if necessary.
-// It expects the path to the dylib file to be set in the `CIRCUIT_WASM_DYLIB` environment variable.
-#[cfg(feature = "dylib")]
-#[must_use]
-pub fn witness_calculator() -> &'static Mutex<WitnessCalculator> {
-    let var_name = "CIRCUIT_WASM_DYLIB";
+const GRAPH_BYTES: &[u8] = include_bytes!(env!("BUILD_RS_GRAPH_FILE"));
 
-    WITNESS_CALCULATOR.get_or_init(|| {
-        let path = env::var(var_name).unwrap_or_else(|_| {
-            panic!(
-                "Mopro circuit WASM Dylib not initialized. \
-            Please set {} environment variable to the path of the dylib file",
-                var_name
-            )
-        });
-        from_dylib(Path::new(&path))
-    })
+static WITHESS_GRAPH: Lazy<Graph> = Lazy::new(|| init_graph(&GRAPH_BYTES).expect("Failed to initialize Graph"));
+
+fn convert_bigint_to_u256(bigint: &BigInt) -> Option<U256> {
+    // Attempt to convert BigInt to a string and then parse it into U256
+    // Note: This assumes your BigInt is always non-negative and within U256 bounds
+    U256::from_str(&bigint.to_str_radix(16)).ok()
 }
 
-// #[cfg(not(feature = "dylib"))]
-// #[must_use]
-// pub fn witness_calculator() -> &'static Mutex<WitnessCalculator> {
-//     WITNESS_CALCULATOR.get_or_init(|| {
-//         let store = Store::default();
-//         let module = Module::from_binary(&store, WASM).expect("WASM should be valid");
-//         let result =
-//             WitnessCalculator::from_module(module).expect("Failed to create WitnessCalculator");
-//         Mutex::new(result)
-//     })
-// }
+fn convert_inputs(inputs: HashMap<String, Vec<BigInt>>) -> HashMap<String, Vec<U256>> {
+    let mut converted: HashMap<String, Vec<U256>> = HashMap::new();
+    for (key, values) in inputs {
+        let converted_values: Vec<U256> = values.iter()
+            .filter_map(|v| convert_bigint_to_u256(v))
+            .collect();
+        // This will drop any BigInt that cannot be converted to U256
+        converted.insert(key, converted_values);
+    }
+    converted
+}
 
 pub fn generate_proof2(
     inputs: CircuitInputs,
@@ -182,16 +102,19 @@ pub fn generate_proof2(
     println!("Generating proof 2");
 
     let now = std::time::Instant::now();
-    let full_assignment = witness_calculator()
-        .lock()
-        .expect("Failed to lock witness calculator")
-        .calculate_witness_element::<Bn254, _>(inputs, false)
-        .map_err(|e| MoproError::CircomError(e.to_string()))?;
+
+    let converted_inputs = convert_inputs(inputs);
+
+    let witness = witness::calculate_witness(converted_inputs, &WITHESS_GRAPH).unwrap();
+
+    let full_assignment = witness
+        .into_iter()
+        .map(|x| Fr::from_bigint(x.into()).expect("Couldn't cast U256 to BigInteger"))
+        .collect::<Vec<_>>();
 
     println!("Witness generation took: {:.2?}", now.elapsed());
 
     let now = std::time::Instant::now();
-    //let zkey = zkey();
     let zkey = arkzkey();
     println!("Loading arkzkey took: {:.2?}", now.elapsed());
 
@@ -512,45 +435,8 @@ mod tests {
         assert!(result.is_err());
     }
 
-    #[cfg(feature = "dylib")]
-    #[test]
-    fn test_dylib_init_and_generate_witness() {
-        // Assumes that the dylib file has been built and is in the following location
-        let dylib_path = "target/debug/aarch64-apple-darwin/keccak256.dylib";
-
-        // Initialize libray
-        initialize(Path::new(&dylib_path));
-
-        let input_vec = vec![
-            116, 101, 115, 116, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0,
-        ];
-
-        let inputs = bytes_to_circuit_inputs(&input_vec);
-        let now = std::time::Instant::now();
-        let full_assignment = witness_calculator()
-            .lock()
-            .expect("Failed to lock witness calculator")
-            .calculate_witness_element::<Bn254, _>(inputs, false)
-            .map_err(|e| MoproError::CircomError(e.to_string()));
-
-        println!("Witness generation took: {:.2?}", now.elapsed());
-
-        assert!(full_assignment.is_ok());
-    }
-
     #[test]
     fn test_generate_proof2() {
-        // XXX: This can be done better
-        #[cfg(feature = "dylib")]
-        {
-            // Assumes that the dylib file has been built and is in the following location
-            let dylib_path = "target/debug/aarch64-apple-darwin/keccak256.dylib";
-
-            // Initialize libray
-            initialize(Path::new(&dylib_path));
-        }
-
         let input_vec = vec![
             116, 101, 115, 116, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0,
