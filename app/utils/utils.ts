@@ -16,14 +16,14 @@ export function checkInputs(
   passportNumber: string,
   dateOfBirth: string,
   dateOfExpiry: string,
-): {success: boolean, message: string} {
+): { success: boolean, message: string } {
   // if (passportNumber.length !== 9) {
   //   throw new Error('Passport number must be 9 characters long');
   // }
   if (dateOfBirth.length !== 6) {
     return {
       success: false,
-      message: 'Date of birth must be 6 characters long'
+      message: 'Scan your passport with your camera first'
     };
   }
   if (dateOfExpiry.length !== 6) {

@@ -121,7 +121,7 @@ function App(): JSX.Element {
   };
 
   return (
-    <YStack f={1} bg="white" h="100%" w="100%">
+    <YStack f={1} bc="#161616" h="100%" w="100%">
       <YStack h="100%" w="100%">
         <MainScreen
           onStartCameraScan={handleStartCameraScan}

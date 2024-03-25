@@ -1,79 +1,87 @@
 import React from 'react';
-import { Text, YStack, XStack, Card, H3, Image } from 'tamagui';
+import { Text, YStack, XStack, H4, Button } from 'tamagui';
 import { ChevronRight } from '@tamagui/lucide-icons';
-import { Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
+import { borderColor, componentBgColor, textColor1, textColor2 } from '../utils/colors';
 
 
 interface AppCardProps {
     title: string;
     description: string;
-    colorOfTheText: string;
-    background: string | undefined;
     id: string | number;
     onTouchStart?: () => void;
     selected?: boolean;
     selectable?: boolean;
+    icon: any;
+    tags: any;
 }
 
 const AppCard: React.FC<AppCardProps> = ({
     title,
     description,
-    colorOfTheText,
-    background,
     id,
     onTouchStart,
     selected,
-    selectable
+    selectable,
+    icon,
+    tags
 }) => {
     const showtoast = () => {
         Toast.show({
             type: 'info',
-            text1: '🚧 App not available yet '
+            text1: '🚧 Coming soon ',
+            position: 'top',
+            topOffset: 80,
         })
     }
 
     return (
-        <XStack
+        <YStack
             overflow="hidden"
             elevation={selected ? "$3" : "$3"}
-            borderRadius="$11"
-            borderColor={(selected) ? "#3185FC" : ((Platform.OS === 'ios') ? "white" : "transparent")}
-            borderWidth={(selected) ? 3 : 3}
-            backgroundColor='white'
-            shadowColor={selected ? "#3185FC" : "black"}
+            borderRadius="$7"
+            borderWidth={1.2}
+            borderColor={borderColor}
+            key={id}
+            bg={componentBgColor}
         >
-            <Card
-                key={id}
-                elevation={0}
-                onTouchStart={selectable ? onTouchStart : showtoast}
-            >
-                <XStack w="100%">
-                    <Card.Header w="100%">
-                        <XStack ai="center" py="$1">
-                            <YStack width={250}>
-                                <H3 color={colorOfTheText} selectable={false} >{title}</H3>
-                                <Text mt="$1" theme="alt2" color={colorOfTheText} selectable={false}>{description}</Text>
-                            </YStack>
-                            <XStack flex={1} />
-                            <ChevronRight size="$4" color={selected ? "#3185FC" : "transparent"} minWidth="$4" />
-                        </XStack>
-                    </Card.Header>
-                    {(
-                        <Card.Background
-                        >
-                            {background &&
-                                <Image
-                                    flex={1}
-                                    source={{
-                                        uri: background
-                                    }}
-                                />}
-                        </Card.Background>
-                    )}
+            <YStack p="$2.5">
+                <XStack gap="$3" ai="center">
+                    <XStack h="$3" w="$3" p="$1" ai="center" jc="center" bc="#232323" borderWidth={1.2} borderColor="#343434" borderRadius="$3">
+                        {React.createElement(icon, { color: textColor1 })}
+                    </XStack>
+                    <YStack width={250}>
+                        <H4 color={textColor1} selectable={false} >{title}</H4>
+                    </YStack>
+                    <XStack flex={1} />
                 </XStack>
-            </Card >
-        </XStack>
+            </YStack>
+            <YStack p="$2" bc="#232323" borderWidth={1.2} borderLeftWidth={0} borderRightWidth={0} borderColor="#343434">
+                <XStack ai="center">
+                    <YStack gap="$1" >
+                        <Text color={textColor2} mt="$1" theme="alt2" selectable={false}>{description}.</Text>
+                        <Text color={textColor2} mt="$1" theme="alt2" selectable={false}>No other data that the ones selected in the next step will be shared with the app.</Text>
+                    </YStack>
+                    <XStack flex={1} />
+                </XStack>
+            </YStack>
+            <YStack p="$2">
+                <XStack gap="$4" ai="center">
+                    <XStack gap="$1">
+                        {tags.map((Tag: any, index: any) => <React.Fragment key={index}>{Tag}</React.Fragment>)}
+                    </XStack>
+                    <XStack f={1} />
+                    <Button h="$3" p="$2" pl="$3" borderRadius="$4" borderWidth={1} backgroundColor="#282828" borderColor="#343434" onPress={selectable ? onTouchStart : showtoast}>
+                        <XStack gap="$0">
+                            <Text color="#ededed" fontSize="$5"  >Select</Text>
+                            <ChevronRight size="$1" color="#ededed" />
+                        </XStack>
+                    </Button>
+                </XStack>
+            </YStack>
+
+        </YStack>
+
     );
 }
 

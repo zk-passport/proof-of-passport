@@ -1,74 +1,99 @@
 import React from 'react';
 import ZUPASS from '../images/zupass.png';
 import GITCOIN from '../images/gitcoin.png';
-import { YStack } from 'tamagui';
+import { ScrollView, Text, YStack } from 'tamagui';
 import AppCard from '../components/AppCard';
 import { App, gitcoin, soulbound, zuzalu } from '../utils/AppClass';
 import { Steps } from '../utils/utils';
+import { Coins, Flame, Ticket } from '@tamagui/lucide-icons';
 
 interface AppScreenProps {
   selectedApp: App | null;
   setSelectedApp: (app: App | null) => void;
   step: number;
   setStep: (step: number) => void;
+  setSelectedTab: (tab: string) => void;
 }
 
-const AppScreen: React.FC<AppScreenProps> = ({ selectedApp, setSelectedApp, step, setStep }) => {
+const AppScreen: React.FC<AppScreenProps> = ({ selectedApp, setSelectedApp, step, setStep, setSelectedTab }) => {
 
   const handleCardSelect = (app: App) => {
-    if (selectedApp != app) {
-      setSelectedApp(app);
-      if (step >= Steps.NFC_SCAN_COMPLETED) {
-        setStep(Steps.NFC_SCAN_COMPLETED);
-      }
-    }
+    setSelectedApp(app);
+    setStep(Steps.APP_SELECTED);
+    setSelectedTab("prove");
   };
+
+  const age = () => (
+    <YStack ml="$2" p="$2" px="$3" bc="#2b1400" borderRadius="$10">
+      <Text color="#f7670a" fontWeight="bold">age</Text>
+    </YStack>
+  );
+  const comingSoon = () => (
+    <YStack ml="$2" p="$2" px="$3" bc="#282828" borderRadius="$10">
+      <Text color="#a0a0a0" fontWeight="bold">coming soon</Text>
+    </YStack>
+  );
+  const nationality = () => (
+    <YStack ml="$2" p="$2" px="$3" bc="#0d1e18" borderRadius="$10">
+      <Text color="#3bb178" fow="bold">nationality</Text>
+    </YStack>
+  );
+
+
 
   const cardsData = [
     {
       app: zuzalu,
-      title: 'Add to Zupasss',
-      description: 'Prove your identity at in person events',
+      title: 'Zupass',
+      description: 'Connect to prove your identity at in person events',
       background: ZUPASS,
       colorOfTheText: 'white',
-      selectable: false
+      selectable: false,
+      icon: Ticket,
+      tags: [comingSoon()]
     },
     {
       app: gitcoin,
-      title: 'Add to Gitcoin passport',
-      description: 'And donate to your favorite projects',
+      title: 'Gitcoin passport',
+      description: 'Add to Gitcoin passport and donate to your favorite projects',
       background: GITCOIN,
       colorOfTheText: 'white',
       selectable: false,
+      icon: Coins,
+      tags: [comingSoon()]
     },
     {
       app: soulbound,
-      title: 'Mint SBT 🔥',
-      description: 'And prove you\'re a human',
+      title: 'Soul Bond Token',
+      description: 'Mint a Soul Bond Token and prove you\'re a human',
       colorOfTheText: 'black',
-      selectable: true
-
-    },
+      selectable: true,
+      icon: Flame,
+      tags: [age(), nationality()]
+    }
   ];
 
   return (
-    <YStack flex={1} gap="$5" px="$5" jc="center" alignItems='center' >
+    <ScrollView >
+      < YStack my="$4" gap="$5" px="$5" jc="center" alignItems='center' >
+        {
+          cardsData.map(card => (
+            <AppCard
+              key={card.app.id}
+              title={card.title}
+              description={card.description}
+              id={card.app.id}
+              onTouchStart={() => handleCardSelect(card.app)}
+              selected={selectedApp && selectedApp.id === card.app.id ? true : false}
+              selectable={card.selectable}
+              icon={card.icon}
+              tags={card.tags}
+            />
+          ))
+        }
 
-      {cardsData.map(card => (
-        <AppCard
-          key={card.app.id}
-          title={card.title}
-          description={card.description}
-          colorOfTheText={card.colorOfTheText}
-          background={card.background}
-          id={card.app.id}
-          onTouchStart={() => handleCardSelect(card.app)}
-          selected={selectedApp && selectedApp.id === card.app.id ? true : false}
-          selectable={card.selectable}
-        />
-      ))}
-
-    </YStack>
+      </YStack >
+    </ScrollView >
   );
 }
 
