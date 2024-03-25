@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Bundle identifier, usually in reverse DNS format -->
+    <key>CFBundleIdentifier</key>
+    <string>com.example.proof_of_passport</string>
+
+    <!-- Bundle name -->
+    <key>CFBundleName</key>
+    <string>proof_of_passport</string>
+
+    <!-- Bundle version, should be incremented with each release -->
+    <key>CFBundleVersion</key>
+    <string>1</string>
+
+    <!-- Bundle short version string, human-readable version, usually [major].[minor].[patch] -->
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+
+    <!-- Executable name, should match the name of the binary inside the framework -->
+    <key>CFBundleExecutable</key>
+    <string>proof_of_passport.dylib</string>
+
+    <!-- Bundle package type, this is always FMWK for macOS/iOS frameworks -->
+    <key>CFBundlePackageType</key>
+    <string>FMWK</string>
+
+    <!-- Supported interface orientations (iOS only, optional) -->
+    <!-- This is optional and relevant only if your framework includes UI components -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+    </array>
+</dict>
+</plist>

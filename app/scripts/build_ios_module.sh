@@ -26,12 +26,13 @@ fi
 
 
 cd mopro-core
-cargo build --release
+cargo build --release --features dylib
 
 cd ../mopro-ffi
 echo "Building mopro-ffi static library..."
-cargo build --release --target ${ARCHITECTURE}
+cargo build --release --target ${ARCHITECTURE} --features dylib
 cp target/${ARCHITECTURE}/${LIB_DIR}/libmopro_ffi.a ../ios/MoproKit/Libs/
+cp ${PROJECT_DIR}/mopro-core/target/${ARCHITECTURE}/${LIB_DIR}/proof_of_passport.dylib ../ios/MoproKit/Libs/
 echo "copied libmopro_ffi.a to ios/Moprokit/Libs/"
 
 cd ../ios
