@@ -3,6 +3,7 @@
     "@types/node": "^20.11.20"
   },
   "dependencies": {
-    "@zk-kit/imt": "https://gitpkg.now.sh/0xturboblitz/zk-kit/packages/imt?b6e7d542"
+    "@zk-kit/imt": "https://gitpkg.now.sh/0xturboblitz/zk-kit/packages/imt?b6e7d542",
+    "ts-node": "^10.9.2"
   }
 }

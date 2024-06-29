@@ -322,3 +322,11 @@ export function findSubarrayIndex(arr: any[], subarray: any[]): number {
     subarray.every((element, i) => element === arr[index + i])
   );
 }
+
+export function stringToAsciiBigIntArray(str: string): BigInt[] {
+  let asciiBigIntArray = [];
+  for (let i = 0; i < str.length; i++) {
+      asciiBigIntArray.push(BigInt(str.charCodeAt(i)));
+  }
+  return asciiBigIntArray;
+}

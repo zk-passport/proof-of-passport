@@ -10,8 +10,9 @@ import {
 import { LeanIMT } from "@zk-kit/lean-imt";
 import { IMT } from "@zk-kit/imt";
 import { getLeaf } from "./pubkeyTree";
+import { getOfacLeaf } from "./passportTree";
 import serializedTree from "../../pubkeys/serialized_tree.json";
-import { poseidon2, poseidon6 } from "poseidon-lite";
+import { poseidon1, poseidon2, poseidon6 } from "poseidon-lite";
 import { packBytes } from "../utils/utils";
 import {
   mockPassportDatas,
@@ -158,6 +159,25 @@ export function generateCircuitInputsDisclose(
     current_date: getCurrentDateYYMMDD().map(datePart => BigInt(datePart).toString()),
     majority: majority.map(char => BigInt(char.charCodeAt(0)).toString()),
     user_identifier: [user_identifier],
+  };
+}
+
+
+export function generateCircuitInputsDiscloseOfac(
+  passportData: PassportData,
+  merkletree: LeanIMT,
+) {
+  const mrz_bytes = formatMrz(passportData.mrz);
+  const passport_leaf = getOfacLeaf(mrz_bytes.slice(49,58))
+  const index = findIndexInTree(merkletree, passport_leaf);
+  const { merkleProofSiblings, merkleProofIndices, depthForThisOne } = generateMerkleProof(merkletree, index, PUBKEY_TREE_DEPTH)
+
+  return {
+    mrz: mrz_bytes.map(byte => String(byte)),
+    merkle_root: [merkletree.root.toString()],
+    merkletree_size: [BigInt(depthForThisOne).toString()],
+    path: merkleProofIndices.map(index => BigInt(index).toString()),
+    siblings: merkleProofSiblings.map(index => BigInt(index).toString()),
   };
 }
 
