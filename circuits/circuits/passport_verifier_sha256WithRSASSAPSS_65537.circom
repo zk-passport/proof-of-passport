@@ -66,10 +66,11 @@ template PassportVerifier_sha256WithRSASSAPSS_65537(n, k, max_datahashes_bytes) 
     component rsaDecode = RSASSAPSS_Decode(n, k);
     rsaDecode.signature <== signature;
     rsaDecode.modulus <== pubkey;
-    signal encodedMessage[(n*k) \ 8] <== rsaDecode.eM;
+    var emLen = div_ceil((n*k) -1, 8); //refer point 2.C of https://datatracker.ietf.org/doc/html/rfc8017#section-8.1.2
+    signal encodedMessage[emLen] <== rsaDecode.eM;
 
     // verify eContent signature
-    component rsaVerify = RSASSAPSSVerify_SHA256(n*k, eContentBytesLength);
+    component rsaVerify = RSASSAPSSVerify_SHA256((n*k) -1 , eContentBytesLength); //point 3 from https://datatracker.ietf.org/doc/html/rfc8017#section-8.1.2
     rsaVerify.eM <== encodedMessage;
     rsaVerify.message <== eContentBytes;
 }

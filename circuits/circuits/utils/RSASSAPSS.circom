@@ -14,10 +14,10 @@ include "./xor.circom";
 template RSASSAPSS_Decode(n, k) {
     signal input signature[k];
     signal input modulus[k];
-    // signal output eM[k];
     signal encoded[k];
-    signal eMsgInBits[n*k];
-    signal output eM[(n*k)\8]; //8 bit words
+    var emLen = div_ceil((n*k) -1, 8); //refer point 2.C of https://datatracker.ietf.org/doc/html/rfc8017#section-8.1.2
+    signal eMsgInBits[emLen * 8];
+    signal output eM[emLen]; //8 bit words
 
     component bigPow = FpPow65537Mod(n, k);
     for (var i = 0; i < k; i++) {
@@ -30,27 +30,26 @@ template RSASSAPSS_Decode(n, k) {
     component num2Bits[k];
     for (var i = 0; i < k; i++) {
         num2Bits[i] = Num2Bits(n);
-        num2Bits[i].in <== encoded[k-1-i];
-        
+        num2Bits[i].in <== encoded[i];
+
         for (var j = 0; j < n; j++) {
-            eMsgInBits[i * n + j] <== num2Bits[i].out[n-j-1];
+            if (i * n + j < emLen * 8)
+                eMsgInBits[i * n + j] <== num2Bits[i].out[j];
         }
     }
 
-    component bits2Num[(n*k)\8];
-    for (var i = 0; i < (n*k)\8; i++) {
+    component bits2Num[emLen];
+    for (var i = 0; i < emLen; i++) {
         bits2Num[i] = Bits2Num(8);
         for (var j = 0; j < 8; j++) {
-            bits2Num[i].in[7-j] <== eMsgInBits[i*8 + j];
+            bits2Num[i].in[7-j] <== eMsgInBits[i*8 + (7-j)];
         }
-        eM[(n*k)\8 - i -1] <== bits2Num[i].out;
+        eM[i] <== bits2Num[i].out;
     }
 }
 
 /// @param emBits Length of the encoded message in bits.
 /// @param messageLen Length of the message in bytes.
-/// @param n Number of bits per chunk the modulus is split into.
-/// @param k Number of chunks the modulus is split into.
 template RSASSAPSSVerify_SHA256(emBits, messageLen) {
     var emLen = div_ceil(emBits, 8);
     signal input eM[emLen];
@@ -73,7 +72,7 @@ template RSASSAPSSVerify_SHA256(emBits, messageLen) {
     }
 
     //mHash
-    component sha256 = Sha256(832);
+    component sha256 = Sha256(messageLen*8);
     sha256.in <== messageBits;
     for (var i = 0; i < 256; i++) {
         mHash[i] <== sha256.out[i];
@@ -98,9 +97,8 @@ template RSASSAPSSVerify_SHA256(emBits, messageLen) {
     for (var i = 0; i < emLen; i++) {
         num2Bits[i] = Num2Bits(8);
         num2Bits[i].in <== eM[emLen-1-i];
-        
         for (var j = 0; j < 8; j++) {
-            eMsgInBits[i * 8 + j] <== num2Bits[i].out[8-j-1];
+            eMsgInBits[(i * 8) + j] <== num2Bits[i].out[8-j-1];
         }
     }
 
