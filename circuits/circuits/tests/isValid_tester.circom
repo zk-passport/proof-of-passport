@@ -1,6 +1,6 @@
 pragma circom  2.1.6;
 
-include "../utils/IsValid.circom";
+include "../utils/isValid.circom";
 
 template IsValid_tester() {
 
