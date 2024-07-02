@@ -12,10 +12,12 @@
 ### Android
 | Requirement | Version | Installation Guide |
 |-------------|---------|--------------------|
-| Java        | 11      | [Install Java](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html) or [GPT4 guide](https://chatgpt.com/share/26cd879b-26bb-4fd4-b59e-cfe002a06afe) |
-| Android Studio | Latest | [Install Android Studio](https://developer.android.com/studio) |
+| Java        | 17      | [Install Java](https://www.oracle.com/java/technologies/downloads/#java17) |
+| Android Studio (Optional)* | Latest | [Install Android Studio](https://developer.android.com/studio) |
 | Android SDK | Latest  | [Install Android SDK](https://developer.android.com/studio#downloads) |
-| Android Ndk         | 23.1.7779620 | [Install NDK](https://developer.android.com/studio) or [GPT4 guide](https://chatgpt.com/share/a6e2544b-d32a-4554-a452-402511d03ffc) |
+| Android NDK         | 23.1.7779620 | [Install NDK](https://developer.android.com/studio) or [GPT4 guide](https://chatgpt.com/share/a6e2544b-d32a-4554-a452-402511d03ffc) |
+
+\* To facilitate the installation of the SDK and the NDK, and to pair with development devices with a conventient QR code, you can use Android Studio.
 
 ### iOS
 | Requirement | Version | Installation Guide |
@@ -26,36 +28,107 @@
 
 ## Installation
 
+> All of the commands in this guide are run from the `proof-of-passport/app` directory
+
+Install dependencies
 ```bash
+yarn install
 yarn install-app
 ```
 
-## Run the app
+### Android
 
-First, connect your phone to your computer and allow access.
+#### Using Android Studio
+
+In Android Studio, go to **Tools** > **SDK Manager** in the menu
+
+Under **SDK Platforms**, install the platform with the highest API number
+
+Under **SDK Tools**, check the **Show Package Details** checkbox, expand **NDK (Side by side)**, select version **23.1.7779620** and install.
+
+
+#### Using sdkmanager via CLI
+
+Create a directory for the Android SDK. For example `~/android_sdk`. Define the environment variable `ANDROID_HOME` to point that directory.
+
+Install sdkmanager under `ANDROID_HOME` according to the instructions on https://developer.android.com/tools/sdkmanager
+
+
+
+List available SDK platforms
+```bash
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep platforms
+```
+
+In the list of platforms, find the latest version and install it. (Replace *NN* with the latest version number)
+```bash
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-NN"
+```
+
+Install the NDK
+```bash
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;23.1.7779620"
+```
+Define the environment variable `ANDROID_NDK` to `$ANDROID_HOME/ndk/23.1.7779620`
+
+Install Platform Tools, needed for the `adb` tool
+```bash
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install platform-tools
+```
+
+Add `$ANDROID_HOME/platform-tools` to your `$PATH` variable
+
+
+## Run the app
 
 ### Android
 
-Create the file `android/local.properties` with the following content:
+#### Pair and connect to the phone
+
+##### Using Android Studio
+
+In Android Studio, use Device Manager to pair with and connect to your phone.
+
+##### Using adb
+
+In your phone's developer settings, select **Wireless debugging** > **Pair the device using a pairing code**. Using the displayed information, run
 ```
-sdk.dir=/Users/<your-user-name>/Library/Android/sdk
+adb pair PHONE_IP:PAIRING_PORT PAIRING_CODE
 ```
 
-Launch the react-native server:
+To connect to the device, find the IP number and port (different port than in the pairing step) directly under Wireless debugging, and run
 ```
+adb connect PHONE_IP:DEVELOPMENT_PORT
+```
+
+#### Run the app
+
+Create the file `android/local.properties` specifying the SDK directory, for example:
+```
+sdk.dir=/path/to/your/android/sdk
+```
+
+or create it with
+```bash
+echo sdk.dir=$ANDROID_HOME > android/local.properties
+```
+
+
+Launch the React Native server:
+```bash
 yarn start
 ```
 
 Press `a` to open the app on Android.
 
-To see the Android logs you'll have to use the Android Studio Logcat.
+To view the Android logs, use the Logcat feature in Android Studio, or use the `adb logcat` command-line tool.
 
 ### iOS
 
 > :warning: To run the app on iOS, you will need a paying Apple Developer account. Free accounts can't run apps that use NFC reading.<br/>
 > Contact us if you need it to contribute.
 
-Open the ios project on Xcode and add your provisionning profile in Targets > ProofOfPassport > Signing and Capabilities
+Open the ios project on Xcode and add your provisioning profile in Targets > ProofOfPassport > Signing and Capabilities
 
 Then, install pods:
 ```
@@ -77,10 +150,8 @@ Adapt the input generation in `common/src/utils/generateInputs.ts`, and adapt an
 
 ### Android
 
-Find your android ndk path. It should be something like `/Users/<your-user-name>/Library/Android/sdk/ndk/23.1.7779620`
-Build the android native module:
+Make sure that `ANDROID_NDK` is defined as per the instructions above. Then build the android native module:
 ```
-export ANDROID_NDK="<your-android-ndk-path>"
 ./scripts/build_android_module.sh
 ```
 
