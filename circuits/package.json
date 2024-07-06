@@ -23,6 +23,7 @@
     "circomlib": "^2.0.5",
     "circomlibjs": "^0.1.7",
     "dmpierre/sha1-circom": "https://github.com/dmpierre/sha1-circom/",
+    "hash-circuits": "https://github.com/bkomuves/hash-circuits/",
     "elliptic": "^6.5.5",
     "js-sha256": "^0.10.1",
     "jsrsasign": "^11.1.0",

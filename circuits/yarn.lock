@@ -1278,6 +1278,10 @@ has-tostringtag@^1.0.0, has-tostringtag@^1.0.1:
   dependencies:
     has-symbols "^1.0.3"
 
+"hash-circuits@https://github.com/bkomuves/hash-circuits/":
+  version "0.0.0"
+  resolved "https://github.com/bkomuves/hash-circuits/#3ae1517526f1061a8d37a159270cc15727e6b503"
+
 hash.js@1.1.7, hash.js@^1.0.0, hash.js@^1.0.3:
   version "1.1.7"
   resolved "https://registry.yarnpkg.com/hash.js/-/hash.js-1.1.7.tgz#0babca538e8d4ee4a0f8988d68866537a003cf42"
