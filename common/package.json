@@ -1,4 +1,11 @@
 {
+  "name": "common-utils",
+  "version": "0.0.1",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "test": "yarn ts-mocha test/**/*.test.ts --exit"
+  },
   "dependencies": {
     "@babel/runtime": "^7.23.4",
     "@zk-kit/imt": "https://gitpkg.now.sh/0xturboblitz/zk-kit/packages/imt?6d417675",
@@ -14,6 +21,13 @@
     "poseidon-lite": "^0.2.0"
   },
   "devDependencies": {
-    "@types/node-forge": "^1.3.10"
+    "@types/chai": "^4.3.16",
+    "@types/mocha": "^10.0.7",
+    "@types/node-forge": "^1.3.10",
+    "chai": "^4.3.8",
+    "mocha": "^10.6.0",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
   }
 }

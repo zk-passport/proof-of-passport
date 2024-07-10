@@ -54,7 +54,7 @@ export function getPublicKey(certificate) {
     throw new Error("Unable to extract public key");
 }
 
-function extractModulus(publicKeyInfo: string): string | null {
+export function extractModulus(publicKeyInfo: string): string | null {
     // RSA OID
     const rsaOid = '2a864886f70d010101';
     // RSA-PSS OID
