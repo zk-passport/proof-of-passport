@@ -19,6 +19,7 @@ import { sendRegisterTransaction } from '../utils/transactions';
 import { loadPassportData, loadSecret, loadSecretOrCreateIt, storePassportData } from '../utils/keychain';
 import { ethers } from 'ethers';
 import { isCommitmentRegistered } from '../utils/registration';
+import { formatAsVC } from '../../../common/src/utils/formatVC';
 
 interface UserState {
   passportNumber: string
@@ -203,5 +204,10 @@ const useUserStore = create<UserState>((set, get) => ({
     dateOfExpiry: "",
   }),
 }))
+// Function to generate an attestation formatted as a verifiable credential
+const generateAttestation = (passportData) => {
+    const credentialSubject = { passportData, attestationId: PASSPORT_ATTESTATION_ID };
+    return formatAsVC(credentialSubject);
+};
 
 export default useUserStore

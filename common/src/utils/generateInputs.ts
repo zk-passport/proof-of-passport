@@ -16,6 +16,7 @@ import { packBytes } from "../utils/utils";
 import {
   mockPassportDatas,
 } from "./mockPassportData";
+import { formatAsVC } from './formatVC';
 
 export function generateCircuitInputsRegister(
   secret: string,
@@ -176,3 +177,11 @@ export function findIndexInTree(tree: LeanIMT, commitment: bigint): number {
   }
   return index;
 }
+export const generateInputs = (passportData: PassportData) => {
+  const credentialSubject = { 
+    passportData, 
+    attestationId: PASSPORT_ATTESTATION_ID 
+  };
+  const vc = formatAsVC(credentialSubject);
+  console.log(vc);
+};

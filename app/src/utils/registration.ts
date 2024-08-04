@@ -6,6 +6,7 @@ import { PassportData } from "../../../common/src/utils/types";
 import { getLeaf } from "../../../common/src/utils/pubkeyTree";
 import { formatMrz, packBytes } from "../../../common/src/utils/utils";
 import { findIndexInTree } from "../../../common/src/utils/generateInputs";
+import { formatAsVC } from '../../../common/src/utils/formatVC';
 
 export async function isCommitmentRegistered(secret: string, passportData: PassportData) {
   const response = await axios.get(COMMITMENT_TREE_TRACKER_URL)
@@ -44,3 +45,13 @@ export async function isCommitmentRegistered(secret: string, passportData: Passp
     return false;
   }
 }
+
+// New function to register the user and generate a verifiable credential
+export const registerUser = (passportData: PassportData) => {
+  const credentialSubject = {
+    passportData, 
+    attestationId: PASSPORT_ATTESTATION_ID 
+  };
+  const vc = formatAsVC(credentialSubject);
+  console.log(vc);
+};

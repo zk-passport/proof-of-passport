@@ -150,6 +150,17 @@ export const sbtApp: AppType = {
 
       console.log('inputs:', inputs);
 
+      // Definition of the credentialSubject object with the data required for the verifiable credential
+      const credentialSubject= {
+        passportData,
+        attestionId: PASSPORT_ATTESTATION_ID,
+        disclosure,
+        address,
+        majority
+      };
+      const vc = formatAsVC(credentialSubject);
+      console.log('Verifiable Credential:', vc);
+
       const start = Date.now();
 
       const proof = await generateProof(
@@ -163,6 +174,7 @@ export const sbtApp: AppType = {
       update({
         proof: proof,
         proofTime: end - start,
+          vc: vc 
       });
       setStep(Steps.PROOF_GENERATED);
     } catch (error: any) {
