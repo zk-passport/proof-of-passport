@@ -1,3 +1,6 @@
-node_modules/
-yarn.lock
-yarn-error.log
+contracts/contracts/RegisterASCII.txt
+sdk/.env
+dist
+**/node_modules
+**/node_modules/
+showcase

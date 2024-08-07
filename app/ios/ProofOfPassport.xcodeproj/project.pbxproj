@@ -18,6 +18,7 @@
 		05EDEDC62B52D25D00AA51AD /* Prover.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EDEDC42B52D25D00AA51AD /* Prover.m */; };
 		05EDEDC72B52D25D00AA51AD /* Prover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05EDEDC52B52D25D00AA51AD /* Prover.swift */; };
 		0651723A94C70A2B31E3E4F8 /* Pods_ProofOfPassport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAAF621B99F62C9ED35AA07 /* Pods_ProofOfPassport.framework */; };
+		066B6A1E2C637A7F0034578A /* CoreAudioTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 066B6A1D2C637A7F0034578A /* CoreAudioTypes.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		0A6918EB0654476189741475 /* Inter-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 780F6F2600AE4EC1B21B6F44 /* Inter-Light.otf */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -32,6 +33,7 @@
 		2CD45EA0A0A94063935CE7D3 /* Inter-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = DF4EC58B331A46F098343757 /* Inter-Regular.otf */; };
 		2FA7C90AFAF5417DAA7BCB1E /* Inter-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 066DD67BD55B4E90941F2B97 /* Inter-Black.otf */; };
 		37AF1D1302824FFC83B6D1D2 /* Inter-ThinItalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = 1CA9D245CD5A439D88F01D4F /* Inter-ThinItalic.otf */; };
+		4E175A1B915BDC97BBED9C59 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 35474FBDD92CFEB968A60FAF /* PrivacyInfo.xcprivacy */; };
 		5A0E2800F0C34012B292255B /* Inter-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 449D98322BFA406CBB9E2648 /* Inter-Bold.otf */; };
 		625D35EA2F1643E89F9887CE /* Inter-ExtraLightItalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = 67F811D831354006A0A6FE2A /* Inter-ExtraLightItalic.otf */; };
 		6959CC40713D4D42AA56850D /* Luciole-Regular-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8720D4D8B8BC41B79088D43C /* Luciole-Regular-Italic.ttf */; };
@@ -77,6 +79,7 @@
 		05D985FA2BB3344600F58EEA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ProofOfPassport/Assets.xcassets; sourceTree = "<group>"; };
 		05EDEDC42B52D25D00AA51AD /* Prover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Prover.m; sourceTree = "<group>"; };
 		05EDEDC52B52D25D00AA51AD /* Prover.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Prover.swift; sourceTree = "<group>"; };
+		066B6A1D2C637A7F0034578A /* CoreAudioTypes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioTypes.framework; path = System/Library/Frameworks/CoreAudioTypes.framework; sourceTree = SDKROOT; };
 		066DD67BD55B4E90941F2B97 /* Inter-Black.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Black.otf"; path = "../node_modules/@tamagui/font-inter/otf/Inter-Black.otf"; sourceTree = "<group>"; };
 		0AD24C885D29461481982641 /* slkscrb.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = slkscrb.ttf; path = "../node_modules/@tamagui/font-silkscreen/files/slkscrb.ttf"; sourceTree = "<group>"; };
 		0C76A5D3C00C4D19B7624F46 /* Inter-BlackItalic.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-BlackItalic.otf"; path = "../node_modules/@tamagui/font-inter/otf/Inter-BlackItalic.otf"; sourceTree = "<group>"; };
@@ -94,6 +97,7 @@
 		1CA9D245CD5A439D88F01D4F /* Inter-ThinItalic.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-ThinItalic.otf"; path = "../node_modules/@tamagui/font-inter/otf/Inter-ThinItalic.otf"; sourceTree = "<group>"; };
 		22FDF2ADA5789E09558ADB4E /* Pods-ProofOfPassport-ProofOfPassportTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ProofOfPassport-ProofOfPassportTests.release.xcconfig"; path = "Target Support Files/Pods-ProofOfPassport-ProofOfPassportTests/Pods-ProofOfPassport-ProofOfPassportTests.release.xcconfig"; sourceTree = "<group>"; };
 		2B01EC4981C171CA304E6D2B /* Pods-ProofOfPassport.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ProofOfPassport.release.xcconfig"; path = "Target Support Files/Pods-ProofOfPassport/Pods-ProofOfPassport.release.xcconfig"; sourceTree = "<group>"; };
+		35474FBDD92CFEB968A60FAF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ProofOfPassport/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		38DEC0D33CBA43429A48B8E3 /* Inter-LightItalic.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-LightItalic.otf"; path = "../node_modules/@tamagui/font-inter/otf/Inter-LightItalic.otf"; sourceTree = "<group>"; };
 		3DAAF621B99F62C9ED35AA07 /* Pods_ProofOfPassport.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ProofOfPassport.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		449D98322BFA406CBB9E2648 /* Inter-Bold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Bold.otf"; path = "../node_modules/@tamagui/font-inter/otf/Inter-Bold.otf"; sourceTree = "<group>"; };
@@ -140,6 +144,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				066B6A1E2C637A7F0034578A /* CoreAudioTypes.framework in Frameworks */,
 				058516D52BF49B98006A14DA /* libwitnesscalc_register_sha256WithRSAEncryption_65537.a in Frameworks */,
 				0651723A94C70A2B31E3E4F8 /* Pods_ProofOfPassport.framework in Frameworks */,
 				05D985F52BB331AB00F58EEA /* libgmp.a in Frameworks */,
@@ -176,6 +181,7 @@
 				165E76BC2B8DC4A00000FA90 /* MRZScannerModule.swift */,
 				165E76BE2B8DC53A0000FA90 /* MRZScannerModule.m */,
 				16E6646D2B8D292500FDD6A0 /* QKMRZScannerViewRepresentable.swift */,
+				35474FBDD92CFEB968A60FAF /* PrivacyInfo.xcprivacy */,
 			);
 			name = ProofOfPassport;
 			sourceTree = "<group>";
@@ -183,6 +189,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				066B6A1D2C637A7F0034578A /* CoreAudioTypes.framework */,
 				058516D32BF49B91006A14DA /* libwitnesscalc_disclose.a */,
 				058516D22BF49B91006A14DA /* libwitnesscalc_register_sha256WithRSAEncryption_65537.a */,
 				0569F35E2BBC98C9006670BD /* libfq.a */,
@@ -318,7 +325,8 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1520;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
@@ -389,6 +397,7 @@
 				FA58D9C915314CF086BD7FFB /* slkscrb.ttf in Resources */,
 				749862C5A266413FBE508618 /* slkscr.woff in Resources */,
 				5A0E2800F0C34012B292255B /* Inter-Bold.otf in Resources */,
+				4E175A1B915BDC97BBED9C59 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -397,6 +406,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -491,6 +501,7 @@
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -609,7 +620,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 47;
-				DEVELOPMENT_TEAM = 5B29R5LYHQ;
+				DEVELOPMENT_TEAM = 48RQHU5KYX;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -744,7 +755,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ProofOfPassport/ProofOfPassport.entitlements;
 				CURRENT_PROJECT_VERSION = 47;
-				DEVELOPMENT_TEAM = 5B29R5LYHQ;
+				DEVELOPMENT_TEAM = 48RQHU5KYX;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/DoubleConversion\"",
@@ -871,8 +882,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CC = "";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -898,8 +910,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				CXX = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -923,9 +937,17 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 				);
 				INFOPLIST_KEY_NSCameraUsageDescription = "Needed to scan your passport MRZ, you can however enter it manually.";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD = "";
+				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -944,8 +966,13 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				USE_HERMES = false;
 			};
 			name = Debug;
 		};
@@ -953,8 +980,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CC = "";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -980,8 +1008,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				CXX = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -998,9 +1028,17 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 				);
 				INFOPLIST_KEY_NSCameraUsageDescription = "Needed to scan your passport MRZ, you can however enter it manually.";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD = "";
+				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -1018,8 +1056,14 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				USE_HERMES = false;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

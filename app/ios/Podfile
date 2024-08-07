@@ -1,28 +1,7 @@
-use_frameworks!
+platform :ios, '14.0'
 
-# Resolve react_native_pods.rb with node to allow for hoisting
-require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
-    {paths: [process.argv[1]]},
-  )', __dir__]).strip
-
-
-
-platform :ios, '13.0'
-prepare_react_native_project!
-
-
-# If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
-# because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
-#
-# To fix this you can also exclude `react-native-flipper` using a `react-native.config.js`
-# ```js
-# module.exports = {
-#   dependencies: {
-#     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
-# ```
-flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
@@ -31,12 +10,8 @@ if linkage != nil
 end
 
 target 'ProofOfPassport' do
-
   config = use_native_modules!
 
-  # Flags change depending on the env values.
-  flags = get_default_flags()
-  
   use_frameworks!
   pod 'NFCPassportReader', git: 'https://github.com/0xturboblitz/NFCPassportReader.git', commit: '310ecb519655d9ed8b1afc5eb490b2f51a4d3595'
   pod 'QKMRZScanner'
@@ -46,12 +21,7 @@ target 'ProofOfPassport' do
     :path => config[:reactNativePath],
     # Hermes is now enabled by default. Disable by setting this flag to false.
     :hermes_enabled => false,
-    :fabric_enabled => flags[:fabric_enabled],
-    # Enables Flipper.
-    #
-    # Note that if you have use_frameworks! enabled, Flipper will not work and
-    # you should disable the next line.
-    #:flipper_configuration => flipper_config,
+    :fabric_enabled => false,
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
@@ -64,19 +34,18 @@ target 'ProofOfPassport' do
   post_install do |installer|
     installer.generated_projects.each do |project|
       project.targets.each do |target|
-          target.build_configurations.each do |config|
-              config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
-              config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION']
-           end
+        target.build_configurations.each do |config|
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION']
+          
+          # Excluir arquitecturas para evitar problemas con los simuladores
+          config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+        end
       end
     end
 
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
-    react_native_post_install(
-      installer,
-      config[:reactNativePath],
-      :mac_catalyst_enabled => false
-    )
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
+    # Add Flipper post_install block
+    react_native_post_install(installer)
+    # __apply_Xcode_12_5_M1_post_install_workaround(installer) # Remove or comment out this line
   end
 end

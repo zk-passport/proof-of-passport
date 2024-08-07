@@ -1,4 +1,31 @@
 {
-  "name": "ProofOfPassport",
-  "displayName": "Proof of Passport"
+  "expo": {
+    "name": "ProofOfPassport",
+    "slug": "proof-of-passport",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.proofofpassport"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.yourcompany.proofofpassport"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
 }
