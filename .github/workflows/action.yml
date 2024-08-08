@@ -1,0 +1,58 @@
+name: Proof of Passport CI/CD
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    branches:
+      - dev
+      - main
+jobs:
+  run_circuit_tests:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+
+      # Circom installation from https://github.com/erhant/circomkit/blob/main/.github/workflows/tests.yml
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo aptinstall --y \
+            build-essential \
+            libgmp-dev \
+            libsodium-dev \
+            nasm \
+            nlohmann-json3-dev
+      - name: Set Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Download Circom Binary v2.1.8
+        run: |
+          wget -qO /home/runner/work/circom https://github.com/iden3/circom/releases/download/v2.1.8/circom-linux-amd64
+          chmod +x /home/runner/work/circom
+          sudo mv /home/runner/work/circom /bin/circom
+      - name: Print Circom version
+        run: circom --version
+
+      - name: Install Yarn dependencies
+        working-directory: ./circuits
+        run: yarn install-circuits --immutable
+
+      - name: Run lint
+        working-directory: ./circuits
+        run: yarn lint
+
+      - name: Run Tests
+        working-directory: ./circuits
+        run: yarn test
+
+      - name: Run Tests
+        working-directory: ./circuits
+        run: yarn test
