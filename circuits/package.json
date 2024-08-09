@@ -10,6 +10,7 @@
     "lint": "prettier --check ."
   },
   "dependencies": {
+    "@ashpect/smt": "https://github.com/ashpect/smt#main",
     "@noble/curves": "^1.4.2",
     "@types/chai-as-promised": "^7.1.6",
     "@types/node": "^20.11.19",

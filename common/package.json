@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@ashpect/smt": "https://github.com/ashpect/smt#main",
     "@babel/runtime": "^7.23.4",
     "@zk-kit/imt": "https://gitpkg.now.sh/0xturboblitz/zk-kit/packages/imt?6d417675",
     "@zk-kit/lean-imt": "^2.0.1",

@@ -5,6 +5,7 @@ include "@zk-email/circuits/utils/bytes.circom";
 include "../utils/isOlderThan.circom";
 include "../utils/isValid.circom";
 include "binary-merkle-root.circom";
+include "../utils/validatePassport.circom";
 
 template Disclose(nLevels) {
     signal input secret;
@@ -27,27 +28,8 @@ template Disclose(nLevels) {
     signal output nullifier; // Poseidon(secret, scope)
     signal output revealedData_packed[3];
 
-    // Compute the commitment
-    component poseidon_hasher = Poseidon(6);
-    poseidon_hasher.inputs[0] <== secret;
-    poseidon_hasher.inputs[1] <== attestation_id;
-    poseidon_hasher.inputs[2] <== pubkey_leaf;
-    signal mrz_packed[3] <== PackBytes(93)(mrz);
-    for (var i = 0; i < 3; i++) {
-        poseidon_hasher.inputs[i + 3] <== mrz_packed[i];
-    }
-
-    // Verify commitment inclusion
-    signal computedRoot <== BinaryMerkleRoot(nLevels)(poseidon_hasher.out, merkletree_size, path, siblings);
-    merkle_root === computedRoot;
-
-    // Verify validity of the passport
-    component isValid = IsValid();
-    isValid.currDate <== current_date;
-    for (var i = 0; i < 6; i++) {
-        isValid.validityDateASCII[i] <== mrz[70 + i];
-    }
-    1 === isValid.out;
+    // Validate Passport
+    ValidatePassport(nLevels)(secret, attestation_id, pubkey_leaf, mrz, merkle_root, merkletree_size, path, siblings, current_date);
 
     // Disclose optional data
     component isOlderThan = IsOlderThan();

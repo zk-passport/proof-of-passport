@@ -1,0 +1,308 @@
+                OFFICE OF FOREIGN ASSETS CONTROL
+                    U.S. TREASURY DEPARTMENT
+
+        SPECIALLY DESIGNATED NATIONALS AND BLOCKED PERSONS
+                      DATA SPECIFICATION 
+                      
+First Released: 12/06/2004
+Updated:        09/25/2023
+
+PLEASE NOTE IMPORTANT INFORMATION REGARDING THE TECHNICAL STRUCTURE
+OF THESE FILES ARE FEATURED AT THE BOTTOM OF THE DOCUMENT
+
+     OFAC is now publishing its list of Specially Designated Nationals in XML
+and Comma delimited (CSV) format.  These digital publications as
+transmitted by OFAC are designed as reference tools providing actual notice of
+actions by OFAC with respect to Specially Designated Nationals and other
+entities whose property is blocked, to assist the public in complying with the
+various sanctions programs administered by OFAC.  The latest changes may appear
+here prior to their publication in the Federal Register, and it is intended that
+users rely on changes indicated in these documents that post-date the most
+recent Federal Register publication with respect to a particular sanctions
+program in the appendices to chapter V of Title 31, Code of Federal Regulations. 
+Such changes reflect official actions of OFAC, and will be reflected as soon as
+practicable in the Federal Register under the index heading "Foreign Assets
+Control."  New Federal Register notices with regard to Specially Designated
+Nationals or blocked entities may be published at any time.  Users are advised
+to check the Federal Register and these electronic publications routinely for
+additional names or other changes to the listings.  Entities and individuals on
+the list are occasionally licensed by OFAC to transact business with U.S.
+persons in anticipation of removal from the list or because of foreign policy
+considerations in unique circumstances.  Licensing in anticipation of official
+Federal Register publication of a notice of removal based on the unblocking of
+an entity's or individual's property is reflected in these publications by
+removal from the list.  Current information on licenses issued with regard to
+Specially Designated Nationals and other blocked persons may be obtained or
+verified by calling OFAC Licensing at (202) 622-2480.  
+
+Technical Specification: 
+
+Format *.ff consists of records separated by carriage returns, with fields 
+within the records beginning at fixed locations.  
+
+Format *.csv consistes of records seperated by carriage returns (ASCII character 
+13), with fields (values) within records delimited by the "," (comma) symbol 
+(ASCII character 44).   
+
+Null values for all four  formats consist of "-0-" (ASCII characters 45, 48, 45).
+
+     The Comma Seperated Values (.csv), and Fixed-Field (.ff) releases consist of three  ASCII text files--a main
+file listing the name of the SDN and other  information unique to that entity
+(sdn.*), a file of addresses (add.*),  and a file of alternate names (alt.*).
+Addresses and alternate names are linked to particular SDNs using unique integer
+values in a linking or primary key column. The integers used are assigned for
+linking purposes only and do not represent an official reference to that entity.
+
+     Releases of the database-format files are intended as a service to the user
+community.  OFAC's SDN list is published in the Federal Register.  All of OFAC's
+lists are drawn from the same underlying data and every effort has been made to
+ensure consistency.  The Federal Register will govern should differences arise. 
+Due to the nature, urgency, and sensitivity of the programs  which OFAC
+administers and enforces, it may not always be possible to  provide advanced
+notice to users of format changes to the database  structure.
+
+     The files associated with each release are:
+
+fixed field:     SDN.FF, ADD.FF, ALT.FF, SDN_COMMENTS.FF
+Comma delimited: SDN.CSV, ADD.CSV, ALT.CSV, SDN COMMENTS.CSV
+XML:  	         SDN.XML, SDN_ADVANCED.XML	
+
+Misc: dat_spec.txt (this file), sdn.xsd (XML SDN schema), 
+sdn_advanced.xsd (advanced XML SDN schema).
+
+FORMAT SDN FIXED FIELD
+
+Main table, text file name SDN.FF
+
+Column                               Posi-
+sequence Column name  Type     Size  tion  Description
+-------- -----------  -------  ----  ----  ---------------------
+1        ent_num      number   10    10    unique record
+                                           identifier/unique
+                                           listing identifier
+2        SDN_Name     text     350   11    name of sdn
+3        SDN_Type     text     12    361   type of SDN
+4        Program      text     200   373   sanctions program name
+5        Title        text     200   573   title of an individual
+6        Call_Sign    text     8     773   vessel call sign
+7        Vess_type    text     25    781   vessel type
+8        Tonnage      text     14    806   vessel tonnage
+9        GRT          text     8     820   gross registered
+                                           tonnage
+10       Vess_flag    text     40    828   vessel flag
+11       Vess_owner   text     150   868   vessel owner
+12       Remarks      text     1000  1018   remarks on SDN*
+         END OF ROW                  2018
+
+Address table, text file name ADD.FF
+
+Column                               Posi-
+sequence Column name  Type     Size  tion  Description
+-------- -----------  -------  ----  ----  ---------------------
+1        Ent_num      number   10    1     link to unique listing
+2        Add_num      number   10    11    unique record
+                                           identifier
+3        Address      text     750   21    street address of SDN
+4        City/				text     116   771   city, state/province, zip/postal code
+         State/Province/
+         Postal Code
+5        Country      text     250   887   country of address
+6        Add_remarks  text     200   1137  remarks on address
+	 			 END OF ROW		    1337
+
+Alternate identity table, text file name ALT.FF
+
+Column                               Posi-
+sequence Column name  Type     Size  tion  Description
+-------- -----------  -------  ----  ----  ---------------------
+1        ent_num      number   10    1     link to unique listing
+2        alt_num      number   10    11    unique record
+                                           identifier
+3        alt_type     text     8     21    type of alternate
+                                           identity
+                                           (aka, fka, nka)
+4        alt_name     text     350   29    alternate identity name
+5        alt_remarks  text     200   379   remarks on alternate
+                                           identity
+         END OF ROW		     579
+
+Record separator:     carriage return
+null:                 -0-
+
+FORMAT SDN CSV
+
+Main table, text file name SDN.CSV
+
+Column
+sequence Column name  Type     Size  Description
+-------- ------------ -------  ----  ---------------------
+1        ent_num     number          unique record
+                                     identifier/unique
+                                     listing identifier
+2        SDN_Name     text     350   name of SDN
+3        SDN_Type     text     12    type of SDN
+4        Program      text     200   sanctions program name
+5        Title        text     200   title of an individual
+6        Call_Sign    text     8     vessel call sign
+7        Vess_type    text     25    vessel type
+8        Tonnage      text     14    vessel tonnage
+9        GRT          text     8     gross registered tonnage
+10       Vess_flag    text     40    vessel flag
+11       Vess_owner   text     150   vessel owner
+12       Remarks      text     1000  remarks on SDN*
+
+Address table, text file name ADD.CSV
+
+Column
+sequence Column name  Type     Size  Description
+-------- ------------ -------  ----  ---------------------
+1        Ent_num      number         link to unique listing
+2        Add_num      number         unique record identifier
+3        Address      text     750   street address of SDN
+4        City/				text     116   city, state/province, zip/postal code
+         State/Province/
+         Postal Code
+5        Country      text     250   country of address
+6        Add_remarks  text     200   remarks on address
+
+Alternate identity table, text file name ALT.CSV
+
+Column
+sequence Column name  Type     Size  Description
+-------- ------------ -------  ----  ---------------------
+1        ent_num      number         link to unique listing
+2        alt_num      number         unique record identifier
+3        alt_type     text     8     type of alternate identity
+                                     (aka, fka, nka)
+4        alt_name     text     350   alternate identity name
+5        alt_remarks  text     200   remarks on alternate identity
+
+Record separator:              carriage return
+field (value) delimiter:       ,
+text value quotes:             "
+null:                          -0-
+
+*SPILLOVER FILES:
+
+OFAC has made certain changes to its SDN production system that now allow for 
+an unlimited number of identifiers, features and linked to identifications to
+be added to a record.  In the fixed-width and delimited files these data are 
+stored in the remarks field.  Due to these changes, it is now possible for an
+SDN record to exceed the 1000 character remarks limitation.  Data that exceeds
+the specified field limit will be truncated to ensure that the current data
+specification is followed.  However, in order to ensure that users of these
+files continue to have access to truncated data, OFAC has created "spillover files."
+These files will follow the same data specification of the files they are 
+associated with.  However, there will be no upper limit on row length in these files.
+
+The spillover file names are:
+
+sdn_comments.csv
+sdn_comments.ff
+
+
+These files will be listed separately on the OFAC website's SDN page.  They will also be listed 
+separately in the library/fac_dlim and /fac_delim folders of OFAC's FTP sites.  
+
+Please visit the following tutorial on OFAC's website for more information on
+creating a database using these files:
+
+https://ofac.treasury.gov/sdn-list-data-formats-data-schemas/tutorial-on-the-use-of-list-related-legacy-flat-files
+
+THE DISPOSITION OF ALIASES:
+
+OFAC classifies SDN aliases as weak or strong.  In the data files
+discussed in this document, weak aliases are not stored in the alt.* files.
+Weak aliases are stored in the remarks field that trails every primary
+SDN record in the SDN.* files.  For more information on weak aliases 
+please review the following text taken from the frequently asked questions 
+on OFAC's website.  
+
+What are weak aliases (AKAs)?
+
+A "weak AKA" is a term for a relatively broad or generic alias that
+may generate a large volume of false hits.  Weak AKAs include
+nicknames, noms-de-guerre, and unusually common acronyms.  OFAC
+includes these AKAs because, based on information available to it, the
+sanctions targets refer to themselves, or are referred to, by these
+names.  As a result, these AKAs may be useful for identification
+purposes, particularly in confirming a possible "hit" or "match"
+triggered by other identifier information.  Realizing, however, the
+large number of false hits that these names may generate, OFAC
+qualitatively distinguishes them from other AKAs by designating them
+as weak.  OFAC has instituted procedures that attempt to make this
+qualitative review of aliases as objective as possible.  Before
+issuing this updated guidance, OFAC conducted a review of all aliases
+on the SDN list.  Each SDN alias was run through a computer program
+that evaluated the potential of an alias to produce false positives in
+an automated screening environment.  Names were evaluated using the
+following criteria:
+
+Character length (shorter strings were assumed to be less effective in
+a screening environment than longer strings); 
+The presence of numbers in an alias (digits 0-9); 
+The presence of common words that are generally considered to
+constitute a nickname (example: Ahmed the Tall); 
+References in the alias to geographic locations (example: Ahmed the
+Sudanese); 
+The presence of very common prefixes in a name where the prefix was
+one of only two strings in a name (example: Mr. Smith).
+Aliases that met one or more of the above criteria were flagged for
+human review.  OFAC subject matter experts then reviewed each of the
+automated recommendations and made final decisions on the flagging of
+each alias.*
+
+OFAC intends to use these procedures to evaluate all new aliases
+introduced to the SDN list. 
+
+Where can I find weak aliases (AKAs)?
+ 
+Weak AKAs appear differently depending on which file format of the SDN
+List is utilized.
+ 
+In the TXT and PDF versions of the SDN List, weak AKAs are
+encapsulated in double-quotes within the AKA listing:
+ 
+ALLANE, Hacene (a.k.a. ABDELHAY, al-Sheikh; a.k.a. AHCENE, Cheib;
+a.k.a. "ABU AL-FOUTOUH"; a.k.a. "BOULAHIA"; a.k.a. "HASSAN THE OLD");
+DOB 17 Jan 1941; POB El Menea, Algeria (individual) [SDGT]
+ 
+This convention also is followed in the alphabetical listing published
+in Appendix A to Chapter V of Title 31 of the Code of Federal
+Regulations.  
+
+In the FF, and CSV file formats, weak AKAs are listed in the
+Remarks field (found at the end of the record) of the SDN file.  In
+these formats, weak AKAs are bracketed by quotation marks.
+
+8219@"ALLANE, Hacene"@"individual"@"SDGT"@-0- @-0- @-0- @-0- @-0- @-0-
+@-0- @"DOB 17 Jan 1941; POB El Menea, Algeria; a.k.a. 'ABU
+AL-FOUTOUH'; a.k.a. 'BOULAHIA'; a.k.a. 'HASSAN THE OLD'."
+
+In the XML version of the SDN List, there is a Type element for each
+AKA.  The Type can either be 'weak' or 'strong' (see the XML SDN
+Schema (XSD file) at: 
+http://www.treasury.gov/resource-center/sanctions/SDN-List/Documents/sdn.xsd for more
+information).  
+
+Am I required to screen for weak aliases (AKAs)?
+ 
+OFAC's regulations do not explicitly require any specific screening
+regime.  Financial institutions and others must make screening choices
+based on their circumstances and compliance approach.  As a general
+matter, though, OFAC does not expect that persons will screen for weak
+AKAs, but expects that such AKAs may be used to help determine whether
+a "hit" arising from other information is accurate.  
+
+Will I be penalized for processing an unauthorized transaction
+involving a weak alias (AKA)?
+
+A person who processes an unauthorized transaction involving an SDN
+has violated U.S. law and may be subject to an enforcement action. 
+Generally speaking, however, if (i) the only sanctions reference in
+the transaction is a weak AKA, (ii) the person involved in the
+processing had no other reason to know that the transaction involved
+an SDN or was otherwise in violation of U.S. law, and (iii) the person
+maintains a rigorous risk-based compliance program, OFAC will not
+issue a civil penalty against an individual or entity for processing
+such a transaction.

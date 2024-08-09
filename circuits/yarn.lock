@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@ashpect/smt@https://github.com/ashpect/smt#main":
+  version "1.0.0"
+  resolved "https://github.com/ashpect/smt#4f73fd24adb06a7f8efd6fd2d3ed58e9e2f2691a"
+
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz#00629c35a688e05a88b1cda684fb9d5e73f000a1"
@@ -829,11 +833,6 @@ check-types@^11.2.3:
   resolved "https://registry.yarnpkg.com/check-types/-/check-types-11.2.3.tgz#1ffdf68faae4e941fce252840b1787b8edc93b71"
   integrity sha512-+67P1GkJRaxQD6PKK0Et9DhwQB+vGg3PM5+aavopCpZT1lj9jeqfvpgTLAWErNj8qApkkmXlu/Ug74kmhagkXg==
 
-child_process@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/child_process/-/child_process-1.0.2.tgz#b1f7e7fc73d25e7fd1d455adc94e143830182b5a"
-  integrity sha512-Wmza/JzL0SiWz7kl6MhIKT5ceIlnFPJX+lwUGj7Clhy5MMldsSoJR0+uvRzOS5Kv45Mq7t1PoE8TsOA9bzvb6g==
-
 chokidar@3.5.3:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.5.3.tgz#1cf37c8707b932bd1af1ae22c0432e2acd1903bd"
@@ -862,20 +861,6 @@ circom_runtime@0.1.24:
   integrity sha512-H7/7I2J/cBmRnZm9docOCGhfxzS61BEm4TMCWcrZGsWNBQhePNfQq88Oj2XpUfzmBTCd8pRvRb3Mvazt3TMrJw==
   dependencies:
     ffjavascript "0.2.60"
-
-circom_tester@^0.0.19:
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/circom_tester/-/circom_tester-0.0.19.tgz#e8bed494d080f8186bd0ac6571755d00ccec83bd"
-  integrity sha512-SNHaBsGxcBH6XsVWfsRbRPA7NF8m8AMKJI9dtJJCFGUtOTT2+zsoIqAwi50z6XCnO4TtjyXq7AeXa1PLHqT0tw==
-  dependencies:
-    chai "^4.3.6"
-    child_process "^1.0.2"
-    ffjavascript "^0.2.56"
-    fnv-plus "^1.3.1"
-    r1csfile "^0.0.41"
-    snarkjs "0.5.0"
-    tmp-promise "^3.0.3"
-    util "^0.12.4"
 
 "circom_tester@github:Atomic-Buy/circom_tester#main":
   version "0.0.20"
@@ -987,13 +972,6 @@ diff@^4.0.1:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
-
-"dmpierre/sha1-circom@https://github.com/dmpierre/sha1-circom/":
-  version "1.0.0"
-  resolved "https://github.com/dmpierre/sha1-circom/#fe18319cf72b9f3b83d0cea8f49a1f04482c125b"
-  dependencies:
-    circom_tester "^0.0.19"
-    snarkjs "^0.5.0"
 
 ejs@^3.1.6:
   version "3.1.9"
@@ -1156,7 +1134,7 @@ ffjavascript@0.2.60, ffjavascript@^0.2.48:
     wasmcurves "0.2.2"
     web-worker "^1.2.0"
 
-ffjavascript@0.2.63, ffjavascript@^0.2.45, ffjavascript@^0.2.56, ffjavascript@^0.2.60:
+ffjavascript@0.2.63, ffjavascript@^0.2.45, ffjavascript@^0.2.60:
   version "0.2.63"
   resolved "https://registry.yarnpkg.com/ffjavascript/-/ffjavascript-0.2.63.tgz#0c1216a1f123dc9181df69e144473704d2f115eb"
   integrity sha512-dBgdsfGks58b66JnUZeZpGxdMIDQ4QsD3VYlRJyFVrKQHb2kJy4R2gufx5oetrTxXPT+aEjg0dOvOLg1N0on4A==
@@ -1862,22 +1840,6 @@ set-function-length@^1.2.1:
     gopd "^1.0.1"
     has-property-descriptors "^1.0.1"
 
-snarkjs@0.5.0, snarkjs@^0.5.0, "snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e":
-  version "0.5.0"
-  resolved "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
-  dependencies:
-    "@iden3/binfileutils" "0.0.11"
-    bfj "^7.0.2"
-    blake2b-wasm "^2.4.0"
-    circom_runtime "0.1.21"
-    ejs "^3.1.6"
-    fastfile "0.0.20"
-    ffjavascript "0.2.56"
-    js-sha3 "^0.8.0"
-    localforage "^1.10.0"
-    logplease "^1.2.15"
-    r1csfile "0.0.41"
-
 snarkjs@^0.7.0, snarkjs@^0.7.1:
   version "0.7.3"
   resolved "https://registry.yarnpkg.com/snarkjs/-/snarkjs-0.7.3.tgz#7f703d05b810235255f2d0a70d8a9b8b3ea916e5"
@@ -1893,6 +1855,22 @@ snarkjs@^0.7.0, snarkjs@^0.7.1:
     js-sha3 "^0.8.0"
     logplease "^1.2.15"
     r1csfile "0.0.47"
+
+"snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e":
+  version "0.5.0"
+  resolved "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
+  dependencies:
+    "@iden3/binfileutils" "0.0.11"
+    bfj "^7.0.2"
+    blake2b-wasm "^2.4.0"
+    circom_runtime "0.1.21"
+    ejs "^3.1.6"
+    fastfile "0.0.20"
+    ffjavascript "0.2.56"
+    js-sha3 "^0.8.0"
+    localforage "^1.10.0"
+    logplease "^1.2.15"
+    r1csfile "0.0.41"
 
 source-map-support@^0.5.6:
   version "0.5.21"
@@ -2076,7 +2054,7 @@ util-deprecate@^1.0.1:
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
 
-util@^0.12.4, util@^0.12.5:
+util@^0.12.5:
   version "0.12.5"
   resolved "https://registry.yarnpkg.com/util/-/util-0.12.5.tgz#5f17a6059b73db61a875668781a1c2b136bd6fbc"
   integrity sha512-kZf/K6hEIrWHI6XqOFUiiMa+79wE/D8Q+NCNAWclkyg3b4d2k7s0QGepNjiABc+aR3N1PAyHL7p6UcLY6LmrnA==
