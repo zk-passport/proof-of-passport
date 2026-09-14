@@ -300,10 +300,13 @@ export class SelfBackendVerifier {
       ];
     }
 
+    // the app stamps the circuit date in UTC, so read it back as UTC midnight
     const circuitTimestamp = new Date(
-      Number(circuitTimestampYy.join('')),
-      Number(circuitTimestampMm.join('')) - 1,
-      Number(circuitTimestampDd.join(''))
+      Date.UTC(
+        Number(circuitTimestampYy.join('')),
+        Number(circuitTimestampMm.join('')) - 1,
+        Number(circuitTimestampDd.join(''))
+      )
     );
     issues.push(...checkCircuitTimestamp(circuitTimestamp, new Date(), this.maxProofAgeSeconds));
 

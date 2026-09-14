@@ -6,11 +6,11 @@ import { ConfigMismatch } from '../src/errors/index.js';
 import { checkCircuitTimestamp, DEFAULT_MAX_PROOF_AGE_SECONDS } from '../src/utils/timestamp.js';
 
 const DAY = 24 * 60 * 60;
-const now = new Date(2026, 5, 10, 12, 0, 0);
+const now = new Date(Date.UTC(2026, 5, 10, 12, 0, 0));
 
-// mirrors how verify() builds circuitTimestamp: a local-midnight date with no time part
+// mirrors how verify() builds circuitTimestamp: UTC midnight with no time part
 const circuitDate = (daysFromNow: number) =>
-  new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysFromNow);
+  new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + daysFromNow));
 
 const messages = (circuit: Date, at: Date, tolerance = DEFAULT_MAX_PROOF_AGE_SECONDS) =>
   checkCircuitTimestamp(circuit, at, tolerance).map((i) => i.message);
@@ -61,16 +61,13 @@ test('an invalid circuit date is rejected instead of passing both bounds', () =>
   assert.deepEqual(messages(new Date(Number.NaN), now, 90 * DAY), ['Circuit timestamp is invalid']);
 });
 
-test('end of day is the next local midnight, so a DST day is not an hour off', () => {
-  // exercised on whichever local DST transition days exist; in a fixed-offset zone the
-  // assertion holds trivially
-  for (const circuit of [new Date(2026, 2, 8), new Date(2026, 10, 1)]) {
-    const nextMidnight = new Date(2026, circuit.getMonth(), circuit.getDate() + 1);
-    const lastValid = new Date(nextMidnight.getTime() + DAY * 1000 - 1000);
-    const firstInvalid = new Date(nextMidnight.getTime() + DAY * 1000);
-    assert.deepEqual(messages(circuit, lastValid), []);
-    assert.deepEqual(messages(circuit, firstInvalid), ['Circuit timestamp is too old']);
-  }
+test('the boundary is a UTC day end regardless of the process timezone', () => {
+  // TZ=Pacific/Kiritimati or America/New_York must give the same answer as UTC
+  const circuit = new Date(Date.UTC(2026, 2, 8));
+  const lastValid = new Date(Date.UTC(2026, 2, 9, 23, 59, 59));
+  const firstInvalid = new Date(Date.UTC(2026, 2, 10, 0, 0, 0));
+  assert.deepEqual(messages(circuit, lastValid), []);
+  assert.deepEqual(messages(circuit, firstInvalid), ['Circuit timestamp is too old']);
 });
 
 test('issues carry the InvalidTimestamp mismatch type', () => {
