@@ -65,8 +65,8 @@ export class SelfBackendVerifier {
     userIdentifierType: UserIdType,
     maxProofAgeSeconds: number = DEFAULT_MAX_PROOF_AGE_SECONDS
   ) {
-    if (!(maxProofAgeSeconds >= 0)) {
-      throw new RangeError('maxProofAgeSeconds must be a non-negative number');
+    if (!Number.isFinite(maxProofAgeSeconds) || maxProofAgeSeconds < 0) {
+      throw new RangeError('maxProofAgeSeconds must be a finite, non-negative number');
     }
     if (!(globalThis as Record<symbol, unknown>)[DEPRECATION_WARNED_KEY]) {
       (globalThis as Record<symbol, unknown>)[DEPRECATION_WARNED_KEY] = true;

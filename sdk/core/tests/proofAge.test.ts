@@ -45,6 +45,12 @@ test('a tolerance shorter than the proof age still rejects it', () => {
   assert.deepEqual(messages(circuitDate(-3), now, 2 * DAY), ['Circuit timestamp is too old']);
 });
 
+test('a tolerance beyond the Date range still behaves as a bound, not as a disabled check', () => {
+  const huge = 1e13;
+  assert.deepEqual(messages(circuitDate(-3), now, huge), []);
+  assert.deepEqual(messages(circuitDate(2), now, huge), ['Circuit timestamp is in the future']);
+});
+
 test('the tolerance never widens the future-skew guard', () => {
   assert.deepEqual(messages(circuitDate(1), now, 90 * DAY), []);
   assert.deepEqual(messages(circuitDate(2), now, 90 * DAY), ['Circuit timestamp is in the future']);
@@ -86,12 +92,13 @@ test('constructor accepts the tolerance as an optional seventh argument', () => 
   }
 });
 
-test('constructor rejects a negative or NaN tolerance', () => {
+test('constructor rejects a negative, NaN or infinite tolerance', () => {
   const originalWarn = console.warn;
   console.warn = () => {};
   try {
     assert.throws(() => construct(-1), RangeError);
     assert.throws(() => construct(Number.NaN), RangeError);
+    assert.throws(() => construct(Number.POSITIVE_INFINITY), RangeError);
   } finally {
     console.warn = originalWarn;
   }
