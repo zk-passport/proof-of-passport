@@ -57,6 +57,22 @@ test('the tolerance never widens the future-skew guard', () => {
   assert.deepEqual(messages(circuitDate(2), now), ['Circuit timestamp is in the future']);
 });
 
+test('an invalid circuit date is rejected instead of passing both bounds', () => {
+  assert.deepEqual(messages(new Date(Number.NaN), now, 90 * DAY), ['Circuit timestamp is invalid']);
+});
+
+test('end of day is the next local midnight, so a DST day is not an hour off', () => {
+  // exercised on whichever local DST transition days exist; in a fixed-offset zone the
+  // assertion holds trivially
+  for (const circuit of [new Date(2026, 2, 8), new Date(2026, 10, 1)]) {
+    const nextMidnight = new Date(2026, circuit.getMonth(), circuit.getDate() + 1);
+    const lastValid = new Date(nextMidnight.getTime() + DAY * 1000 - 1000);
+    const firstInvalid = new Date(nextMidnight.getTime() + DAY * 1000);
+    assert.deepEqual(messages(circuit, lastValid), []);
+    assert.deepEqual(messages(circuit, firstInvalid), ['Circuit timestamp is too old']);
+  }
+});
+
 test('issues carry the InvalidTimestamp mismatch type', () => {
   const issues = checkCircuitTimestamp(circuitDate(-3), now, DEFAULT_MAX_PROOF_AGE_SECONDS);
   assert.equal(issues.length, 1);
