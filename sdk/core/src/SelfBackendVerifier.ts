@@ -25,6 +25,7 @@ import {
 } from './errors/index.js';
 import { IConfigStorage } from './store/interface.js';
 import { unpackForbiddenCountriesList } from './utils/utils.js';
+import { checkCircuitTimestamp, DEFAULT_MAX_PROOF_AGE_SECONDS } from './utils/timestamp.js';
 import { BigNumberish } from 'ethers';
 
 const CELO_MAINNET_RPC_URL = 'https://forno.celo.org';
@@ -47,15 +48,26 @@ export class SelfBackendVerifier {
   protected provider: ethers.JsonRpcProvider;
   protected allowedIds: Map<AttestationId, boolean>;
   protected userIdentifierType: UserIdType;
+  protected maxProofAgeSeconds: number;
 
+  /**
+   * @param maxProofAgeSeconds How far in the past a proof's circuit date may lie and still
+   * verify. Defaults to 86400 (one day), which is the historical behaviour. The circuit only
+   * records a date, so the effective window is this value plus up to 24 hours. Only the past
+   * bound is widened; a proof dated more than a day in the future is always rejected.
+   */
   constructor(
     scope: string,
     endpoint: string,
     mockPassport: boolean = false,
     allowedIds: Map<AttestationId, boolean>,
     configStorage: IConfigStorage,
-    userIdentifierType: UserIdType
+    userIdentifierType: UserIdType,
+    maxProofAgeSeconds: number = DEFAULT_MAX_PROOF_AGE_SECONDS
   ) {
+    if (!(maxProofAgeSeconds >= 0)) {
+      throw new RangeError('maxProofAgeSeconds must be a non-negative number');
+    }
     if (!(globalThis as Record<symbol, unknown>)[DEPRECATION_WARNED_KEY]) {
       (globalThis as Record<symbol, unknown>)[DEPRECATION_WARNED_KEY] = true;
       console.warn(
@@ -76,6 +88,7 @@ export class SelfBackendVerifier {
     this.allowedIds = allowedIds;
     this.configStorage = configStorage;
     this.userIdentifierType = userIdentifierType;
+    this.maxProofAgeSeconds = maxProofAgeSeconds;
   }
 
   public async verify(
@@ -292,28 +305,7 @@ export class SelfBackendVerifier {
       Number(circuitTimestampMm.join('')) - 1,
       Number(circuitTimestampDd.join(''))
     );
-    const currentTimestamp = new Date();
-
-    //check if timestamp is in the future
-    const oneDayAhead = new Date(currentTimestamp.getTime() + 24 * 60 * 60 * 1000);
-    if (circuitTimestamp > oneDayAhead) {
-      issues.push({
-        type: ConfigMismatch.InvalidTimestamp,
-        message: 'Circuit timestamp is in the future',
-      });
-    }
-
-    //check if timestamp is 1 day in the past
-    const circuitTimestampEOD = new Date(
-      circuitTimestamp.getTime() + 23 * 60 * 60 * 1e3 + 59 * 60 * 1e3 + 59 * 1e3
-    );
-    const oneDayAgo = new Date(currentTimestamp.getTime() - 24 * 60 * 60 * 1000);
-    if (circuitTimestampEOD < oneDayAgo) {
-      issues.push({
-        type: ConfigMismatch.InvalidTimestamp,
-        message: 'Circuit timestamp is too old',
-      });
-    }
+    issues.push(...checkCircuitTimestamp(circuitTimestamp, new Date(), this.maxProofAgeSeconds));
 
     if (issues.length > 0) {
       throw new ConfigMismatchError(issues);
