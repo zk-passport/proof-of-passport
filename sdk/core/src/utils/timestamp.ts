@@ -4,6 +4,19 @@ export const DEFAULT_MAX_PROOF_AGE_SECONDS = 24 * 60 * 60;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/**
+ * Check a proof's circuit date against the accepted window.
+ *
+ * The circuit records a UTC date with no time, so a proof's age is measured from
+ * the end of that UTC day. `maxProofAgeSeconds` therefore buys that tolerance plus
+ * up to 24 hours, and it widens the past bound only: a date more than a day ahead
+ * of `now` is always rejected as clock skew.
+ *
+ * @param circuitTimestamp The date carried in the proof's public signals.
+ * @param now The instant to judge it against; injected so callers can test it.
+ * @param maxProofAgeSeconds How far in the past the circuit date may lie.
+ * @returns One issue per failed check, empty when the timestamp is acceptable.
+ */
 export function checkCircuitTimestamp(
   circuitTimestamp: Date,
   now: Date,
