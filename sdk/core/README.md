@@ -25,9 +25,28 @@ const selfBackendVerifier = new SelfBackendVerifier(
   mockPassport, // Whether to use testnet (true) or mainnet (false)
   allowedIds, // Map of allowed attestation IDs
   configStorage, // Configuration storage implementation
-  userIdentifierType // Type of user identifier ('hex' or 'uuid')
+  userIdentifierType, // Type of user identifier ('hex' or 'uuid')
+  maxProofAgeSeconds // Optional. How old a proof may be and still verify. Defaults to 86400
 );
 ```
+
+### Proof age
+
+Every proof carries the date it was generated. By default `verify()` rejects a proof once that date is more than one day in the past, which suits a live verification flow. Pass `maxProofAgeSeconds` to accept older proofs, for example a stored proof that is re-verified later:
+
+```typescript
+new SelfBackendVerifier(
+  scope,
+  endpoint,
+  false,
+  allowedIds,
+  configStorage,
+  'uuid',
+  90 * 24 * 60 * 60
+);
+```
+
+The circuit only records a date, not a time, so the effective window is the value you pass plus up to 24 hours. The parameter widens the past bound only: a proof dated more than a day in the future is always rejected as clock skew.
 
 ## Configuration Storage
 
