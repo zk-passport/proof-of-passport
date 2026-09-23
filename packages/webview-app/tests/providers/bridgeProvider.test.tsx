@@ -5,11 +5,12 @@
 // @vitest-environment jsdom
 
 import type React from 'react';
+import { StrictMode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { WebViewBridge } from '@selfxyz/webview-bridge';
 
-import { BridgeProvider, useBridge } from '../../src/providers/BridgeProvider';
+import { BridgeProvider, resetSharedBridgeForTests, useBridge } from '../../src/providers/BridgeProvider';
 
 import { cleanup, render } from '@testing-library/react';
 
@@ -21,6 +22,7 @@ const Probe: React.FC<{ onBridge: (bridge: WebViewBridge) => void }> = ({ onBrid
 describe('BridgeProvider', () => {
   afterEach(() => {
     cleanup();
+    resetSharedBridgeForTests();
     delete (globalThis as { SelfNativeBridge?: unknown }).SelfNativeBridge;
   });
 
@@ -51,5 +53,36 @@ describe('BridgeProvider', () => {
 
     expect(resolved).toBeInstanceOf(WebViewBridge);
     expect((globalThis as { SelfNativeBridge?: unknown }).SelfNativeBridge).toBe(resolved);
+  });
+
+  it('resolves to the same singleton across separate default renders (StrictMode-safe)', () => {
+    // The singleton is the whole point of the fix: native only calls back into the one
+    // globalThis.SelfNativeBridge, so every consumer must hold that same instance. Under
+    // StrictMode the useMemo factory double-invokes, and a second mount re-runs it — all
+    // must yield one bridge, or native responses/events would miss the live instance.
+    const instances = new Set<WebViewBridge>();
+    const Collect: React.FC = () => {
+      instances.add(useBridge());
+      return null;
+    };
+
+    render(
+      <StrictMode>
+        <BridgeProvider>
+          <Collect />
+        </BridgeProvider>
+      </StrictMode>,
+    );
+    cleanup();
+    render(
+      <StrictMode>
+        <BridgeProvider>
+          <Collect />
+        </BridgeProvider>
+      </StrictMode>,
+    );
+
+    expect(instances.size).toBe(1);
+    expect([...instances][0]).toBeInstanceOf(WebViewBridge);
   });
 });

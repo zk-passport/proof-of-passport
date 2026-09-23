@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 // NOTE: Converts to Apache-2.0 on 2029-06-11 per LICENSE.
 
-import type React from 'react';
+import React from 'react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 
 import type { BridgeDomain } from '@selfxyz/webview-bridge';
@@ -33,12 +33,18 @@ export interface RenderWithBridgeOptions {
   // Caller hook to register flow-specific handlers (camera/scanMRZ, nfc/scanPassport,
   // etc.) or to override any baseline handler. Runs after defaults are registered.
   setupHandlers?: (mock: MockNativeBridge) => void;
+  // Wrap the tree in <React.StrictMode> so effects run setup→cleanup→setup (dev
+  // behavior). Reproduces the interleaved-cleanup class of bugs in start-once effects.
+  strictMode?: boolean;
 }
 
 export interface RenderWithBridgeResult extends RenderResult {
   mock: MockNativeBridge;
   bridge: WebViewBridge;
   storage: Map<string, string>;
+  // Re-render the same tree in place (preserves the router history and the bridge).
+  // Used to reproduce spurious mid-effect re-renders.
+  forceRerender: () => void;
 }
 
 const LocationProbe: React.FC = () => {
@@ -56,7 +62,7 @@ export function currentPath(result: RenderWithBridgeResult): string {
  * real routing and real bridge round-trips; only the native side is mocked.
  */
 export function renderWithBridge(options: RenderWithBridgeOptions): RenderWithBridgeResult {
-  const { initialEntries, config, storage: seed, setupHandlers } = options;
+  const { initialEntries, config, storage: seed, setupHandlers, strictMode } = options;
 
   const mock = new MockNativeBridge();
   const storage = new Map<string, string>(Object.entries(seed ?? {}));
@@ -90,20 +96,27 @@ export function renderWithBridge(options: RenderWithBridgeOptions): RenderWithBr
   const bridge = new WebViewBridge({ transport: mock });
   mock.connect(bridge);
 
-  const result = render(
-    <BridgeProvider bridge={bridge}>
-      <App
-        renderRouter={children => (
-          <MemoryRouter initialEntries={initialEntries}>
-            {children}
-            <LocationProbe />
-          </MemoryRouter>
-        )}
-      />
-    </BridgeProvider>,
-  );
+  // Fresh element each call so a rerender doesn't hit React's identical-element bail-out.
+  // MemoryRouter keeps its history in an internal ref, so routing survives the rerender.
+  const renderTree = () => {
+    const tree = (
+      <BridgeProvider bridge={bridge}>
+        <App
+          renderRouter={children => (
+            <MemoryRouter initialEntries={initialEntries}>
+              {children}
+              <LocationProbe />
+            </MemoryRouter>
+          )}
+        />
+      </BridgeProvider>
+    );
+    return strictMode ? <React.StrictMode>{tree}</React.StrictMode> : tree;
+  };
 
-  return Object.assign(result, { mock, bridge, storage });
+  const result = render(renderTree());
+
+  return Object.assign(result, { mock, bridge, storage, forceRerender: () => result.rerender(renderTree()) });
 }
 
 export type { BridgeDomain };

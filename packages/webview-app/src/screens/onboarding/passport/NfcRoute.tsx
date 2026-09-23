@@ -70,6 +70,8 @@ export const PassportNfcRoute: React.FC = () => {
       return;
     }
 
+    // Subscribe outside the start-once guard so the progress listener is re-established
+    // on the StrictMode remount; the scan itself (started once below) keeps running.
     const unsubscribe = onNfcProgress(bridge, progress => {
       const next = progressStepToNfcStep(progress.step);
       setStep(prev => (next > prev ? next : prev));

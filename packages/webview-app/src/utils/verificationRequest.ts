@@ -44,6 +44,16 @@ export function parseBrowserHostTargetOrigin(search: string, options: TargetOrig
   return normalizeTargetOrigin(params.get('targetOrigin'), options);
 }
 
+/**
+ * True when the launch URL carries a verification-request signal. Browser-host
+ * embed delivers the request via query params (not `getConfig`), so this is the
+ * only embed indicator available when `getConfig` can't be answered.
+ */
+export function hasVerificationRequestParam(search: string): boolean {
+  const params = new URLSearchParams(search);
+  return params.has('disclosures') || params.has('proofItems');
+}
+
 export function parseVerificationRequestContext(search: string): ParsedVerificationRequestContext {
   const params = new URLSearchParams(search);
   const request: VerificationRequest = {

@@ -7,6 +7,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 import type { Capabilities } from '../utils/capabilities';
 import { ALL_CAPABILITIES, normalizeCapabilities } from '../utils/capabilities';
+import { hasVerificationRequestParam } from '../utils/verificationRequest';
 import { useBridge } from './BridgeProvider';
 
 export type OperatingMode = 'self-app' | 'embed';
@@ -75,12 +76,18 @@ export const OperatingModeProvider: React.FC<{ children: React.ReactNode }> = ({
           capabilities: normalizeCapabilities(config?.capabilities),
         });
       } catch {
-        // Browser-host fallback, missing transport, or a host that doesn't
-        // implement getConfig: default to self-app. Embed mode requires
-        // explicit host signaling.
+        // getConfig unavailable: browser-host transport (which structurally can
+        // never answer getConfig — only ready/setResult/dismiss cross to the
+        // host), a missing transport, or a host that doesn't implement it.
+        // getConfig stays authoritative when it answers; here it can't, so the
+        // URL request signal picks the fallback direction. A `disclosures`/
+        // `proofItems` param means an embed verification, so fall back to embed
+        // — otherwise ModeDispatch renders the self-app tour, which dead-ends at
+        // registration instead of the requested disclosure.
         if (cancelled) return;
+        const embedFromUrl = hasVerificationRequestParam(window.location.search);
         setState({
-          mode: 'self-app',
+          mode: embedFromUrl ? 'embed' : 'self-app',
           verificationRequest: null,
           isReady: true,
           referenceId: referenceIdFromUrl(),

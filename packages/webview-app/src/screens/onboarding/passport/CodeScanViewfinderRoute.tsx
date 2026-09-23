@@ -11,7 +11,13 @@ import { bridgeCameraAdapter } from '@selfxyz/webview-bridge/adapters';
 
 import { useBridge } from '../../../providers/BridgeProvider';
 import { useSelfClient } from '../../../providers/SelfClientProvider';
+import type { NavState } from '../../../types/navState';
 import { WEB_SAFE_AREA } from '../../../utils/insets';
+import { MrzScanStatusOverlay } from '../components/MrzScanStatusOverlay';
+
+// Stable identity for the no-router-state case, so `state` in the scan effect's dep
+// array doesn't churn on every render and needlessly re-run the effect.
+const EMPTY_STATE: Partial<NavState> = Object.freeze({});
 
 // Module-level so React StrictMode's double-effect in dev shares one native
 // scan instead of the first (immediately-cancelled) effect owning the only
@@ -26,7 +32,7 @@ export const PassportCodeScanViewfinderRoute: React.FC = () => {
   const location = useLocation();
   const bridge = useBridge();
   const { analytics, haptic } = useSelfClient();
-  const state = (location.state as { countryCode?: string } | null) ?? {};
+  const state = useMemo(() => (location.state as Partial<NavState> | null) ?? EMPTY_STATE, [location.state]);
   const cameraAdapter = useMemo(() => bridgeCameraAdapter(bridge), [bridge]);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -109,12 +115,13 @@ export const PassportCodeScanViewfinderRoute: React.FC = () => {
   }, [analytics, haptic]);
 
   return (
-    <div ref={containerRef} style={{ display: 'contents' }}>
+    <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }}>
       <PassportCodeScanViewfinderScreen
         insets={WEB_SAFE_AREA.insets}
         onClose={handleBack}
         onCaptureTips={onCaptureTips}
       />
+      <MrzScanStatusOverlay bridge={bridge} variant="passport" />
     </div>
   );
 };

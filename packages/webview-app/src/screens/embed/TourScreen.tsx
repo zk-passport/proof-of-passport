@@ -7,10 +7,10 @@ import { useCallback } from 'react';
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { LaunchTour1Screen, LaunchTour2Screen, LaunchTour3Screen, LaunchTour4Screen } from '@selfxyz/euclid';
-import { loadSelectedDocument } from '@selfxyz/mobile-sdk-alpha/browser';
 
 import { useSelfClient } from '../../providers/SelfClientProvider';
 import { WEB_SAFE_AREA } from '../../utils/insets';
+import { resolveEmbedEntry } from '../../utils/resolveEmbedEntry';
 
 export const TourScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -26,17 +26,7 @@ export const TourScreen: React.FC = () => {
       return;
     }
 
-    try {
-      const selectedDoc = await loadSelectedDocument(client);
-      if (selectedDoc?.metadata?.isRegistered === true) {
-        navigate('/disclose/request');
-        return;
-      }
-    } catch {
-      // Fall through to KYC when document state is unavailable.
-    }
-
-    navigate(`/capture/kyc${mockParam}`);
+    navigate(await resolveEmbedEntry(client, `/capture/kyc${mockParam}`), { replace: true });
   }, [navigate, stepNum, client, mockParam]);
 
   const onRestore = useCallback(() => {

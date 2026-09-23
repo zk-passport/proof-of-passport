@@ -22,6 +22,11 @@ const Probe: React.FC = () => {
   return <div data-testid="probe">{isReady ? (referenceId ?? 'none') : 'pending'}</div>;
 };
 
+const ModeProbe: React.FC = () => {
+  const { mode, isReady } = useOperatingMode();
+  return <div data-testid="mode">{isReady ? mode : 'pending'}</div>;
+};
+
 function setUrl(search: string): void {
   window.history.replaceState({}, '', `/${search}`);
 }
@@ -73,5 +78,49 @@ describe('OperatingModeProvider referenceId', () => {
       </OperatingModeProvider>,
     );
     await waitFor(() => expect(screen.getByTestId('probe').textContent).toBe('none'));
+  });
+});
+
+describe('OperatingModeProvider mode fallback direction', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setUrl('');
+  });
+  afterEach(cleanup);
+
+  it('falls back to embed when getConfig cannot answer but a request param is present', async () => {
+    // Browser-host transport structurally never resolves getConfig, so the
+    // request rejects. A `disclosures` param means an embed verification: the
+    // fallback must land on embed, not self-app, or ModeDispatch renders the
+    // self-app tour that dead-ends at registration.
+    setUrl('?disclosures=nationality');
+    request.mockRejectedValue(new Error('no transport'));
+    render(
+      <OperatingModeProvider>
+        <ModeProbe />
+      </OperatingModeProvider>,
+    );
+    await waitFor(() => expect(screen.getByTestId('mode').textContent).toBe('embed'));
+  });
+
+  it('falls back to self-app when getConfig cannot answer and no request param is present', async () => {
+    request.mockRejectedValue(new Error('no transport'));
+    render(
+      <OperatingModeProvider>
+        <ModeProbe />
+      </OperatingModeProvider>,
+    );
+    await waitFor(() => expect(screen.getByTestId('mode').textContent).toBe('self-app'));
+  });
+
+  it('keeps getConfig authoritative: self-app wins even with a request param', async () => {
+    setUrl('?disclosures=nationality');
+    request.mockResolvedValue({ mode: 'self-app' });
+    render(
+      <OperatingModeProvider>
+        <ModeProbe />
+      </OperatingModeProvider>,
+    );
+    await waitFor(() => expect(screen.getByTestId('mode').textContent).toBe('self-app'));
   });
 });

@@ -4,6 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Self</title>
+    <!-- Node `process` global polyfill. Load-bearing: vite.config aliases `crypto`
+         to crypto-browserify, whose readable-stream/hash-base chain reads
+         process.nextTick / process.env at module-eval time. Without this the mount
+         throws "ReferenceError: process is not defined" and the app renders blank.
+         Must run before the deferred module scripts below. -->
+    <script>
+      globalThis.process = globalThis.process || {
+        env: {},
+        browser: true,
+        nextTick: function (cb) {
+          queueMicrotask(cb);
+        },
+        version: '',
+        versions: {},
+      };
+    </script>
   </head>
   <body>
     <div id="root"></div>

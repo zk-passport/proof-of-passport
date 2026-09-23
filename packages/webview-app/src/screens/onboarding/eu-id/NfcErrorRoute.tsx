@@ -15,6 +15,7 @@ import { PassportNfcErrorScreen } from '@selfxyz/euclid';
 import { SupportReference } from '../../../components/SupportReference';
 import { useSelfClient } from '../../../providers/SelfClientProvider';
 import { WEB_SAFE_AREA } from '../../../utils/insets';
+import { nfcErrorCopyForStage } from '../components/nfcErrorCopy';
 
 export const EuIdNfcErrorRoute: React.FC = () => {
   const navigate = useNavigate();
@@ -59,6 +60,7 @@ export const EuIdNfcErrorRoute: React.FC = () => {
         onClose={handleClose}
         onStartOver={onStartOver}
         onTryDifferentMethod={onTryDifferentMethod}
+        copy={nfcErrorCopyForStage(state.stage)}
       />
       <SupportReference />
     </>

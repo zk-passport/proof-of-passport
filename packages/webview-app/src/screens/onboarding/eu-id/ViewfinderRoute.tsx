@@ -11,7 +11,13 @@ import { bridgeCameraAdapter } from '@selfxyz/webview-bridge/adapters';
 
 import { useBridge } from '../../../providers/BridgeProvider';
 import { useSelfClient } from '../../../providers/SelfClientProvider';
+import type { NavState } from '../../../types/navState';
 import { WEB_SAFE_AREA } from '../../../utils/insets';
+import { MrzScanStatusOverlay } from '../components/MrzScanStatusOverlay';
+
+// Stable identity for the no-router-state case, so `state` in the scan effect's dep
+// array doesn't churn on every render and needlessly re-run the effect.
+const EMPTY_STATE: Partial<NavState> = Object.freeze({});
 
 // Module-level so React StrictMode's double-effect in dev shares one native
 // scan instead of the first (immediately-cancelled) effect owning the only
@@ -26,7 +32,7 @@ export const EuIdViewfinderRoute: React.FC = () => {
   const location = useLocation();
   const bridge = useBridge();
   const { analytics, haptic } = useSelfClient();
-  const state = (location.state as { countryCode?: string } | null) ?? {};
+  const state = useMemo(() => (location.state as Partial<NavState> | null) ?? EMPTY_STATE, [location.state]);
   const cameraAdapter = useMemo(() => bridgeCameraAdapter(bridge), [bridge]);
 
   useEffect(() => {
@@ -95,5 +101,10 @@ export const EuIdViewfinderRoute: React.FC = () => {
     analytics.trackEvent('eu_id_viewfinder_capture_tips');
   }, [analytics, haptic]);
 
-  return <EuIdViewfinderScreen insets={WEB_SAFE_AREA.insets} onClose={handleBack} onCaptureTips={onCaptureTips} />;
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <EuIdViewfinderScreen insets={WEB_SAFE_AREA.insets} onClose={handleBack} onCaptureTips={onCaptureTips} />
+      <MrzScanStatusOverlay bridge={bridge} variant="document" />
+    </div>
+  );
 };

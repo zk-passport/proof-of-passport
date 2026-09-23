@@ -489,5 +489,35 @@ describe('Adapter integration tests', () => {
 
       expect(result).toBe(true);
     });
+
+    it('should stop the native camera when scanMRZ rejects', async () => {
+      mock.handleWithError('camera', 'scanMRZ', { code: 'CAMERA_ERROR', message: 'boom' });
+
+      const camera = bridgeCameraAdapter(bridge);
+      await expect(camera.scanMRZ()).rejects.toThrow();
+
+      const stopMessages = mock.messagesFor('camera').filter(m => m.method === 'stopCamera');
+      expect(stopMessages).toHaveLength(1);
+    });
+
+    it('should time out scanMRZ after 120s and stop the native camera', async () => {
+      vi.useFakeTimers();
+      try {
+        // Native never responds — the scan is orphaned.
+        mock.handle('camera', 'scanMRZ', () => new Promise(() => {}));
+
+        const camera = bridgeCameraAdapter(bridge);
+        const promise = camera.scanMRZ();
+        const rejection = expect(promise).rejects.toThrow(/timed out/);
+
+        await vi.advanceTimersByTimeAsync(120_000);
+        await rejection;
+
+        const stopMessages = mock.messagesFor('camera').filter(m => m.method === 'stopCamera');
+        expect(stopMessages).toHaveLength(1);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 });
