@@ -1492,6 +1492,64 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.1)(@vitest/ui@2.1.9)(jsdom@25.0.1)(less@4.6.4)(lightningcss@1.32.0)(sass@1.99.0)(terser@5.47.1)
 
+  packages/rn-sdk-example-app:
+    dependencies:
+      '@babel/runtime':
+        specifier: ^7.28.6
+        version: 7.29.2
+      '@selfxyz/rn-mrz-scanner':
+        specifier: workspace:*
+        version: link:../rn-mrz-scanner
+      '@selfxyz/rn-nfc-passport':
+        specifier: workspace:*
+        version: link:../rn-nfc-passport
+      '@selfxyz/rn-sdk':
+        specifier: workspace:*
+        version: link:../rn-sdk
+      react:
+        specifier: ^19.2.0
+        version: 19.2.6
+      react-native:
+        specifier: 0.83.9
+        version: 0.83.9(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.9(@babel/core@7.29.0))(@types/react@19.2.15)(react@19.2.6)
+      react-native-biometrics:
+        specifier: ^3.0.1
+        version: 3.0.1(react-native@0.83.9(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.9(@babel/core@7.29.0))(@types/react@19.2.15)(react@19.2.6))
+      react-native-fs:
+        specifier: ^2.20.0
+        version: 2.20.0(react-native@0.83.9(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.9(@babel/core@7.29.0))(@types/react@19.2.15)(react@19.2.6))
+      react-native-keychain:
+        specifier: ^9.2.3
+        version: 9.2.3
+      react-native-nfc-manager:
+        specifier: ^3.17.2
+        version: 3.17.2(@expo/config-plugins@55.0.10)
+      react-native-webview:
+        specifier: 13.16.0
+        version: 13.16.0(react-native@0.83.9(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.9(@babel/core@7.29.0))(@types/react@19.2.15)(react@19.2.6))(react@19.2.6)
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.28.6
+        version: 7.29.0(supports-color@8.1.1)
+      '@react-native-community/cli':
+        specifier: ^20.0.0
+        version: 20.1.3(typescript@5.9.3)
+      '@react-native/gradle-plugin':
+        specifier: 0.83.9
+        version: 0.83.9
+      '@react-native/metro-config':
+        specifier: 0.83.9
+        version: 0.83.9(@babel/core@7.29.0(supports-color@8.1.1))(supports-color@8.1.1)
+      '@tsconfig/react-native':
+        specifier: ^3.0.9
+        version: 3.0.9
+      '@types/react':
+        specifier: ^19.2.0
+        version: 19.2.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   packages/rn-sdk-test-app:
     dependencies:
       '@babel/runtime':

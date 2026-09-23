@@ -1,0 +1,12 @@
+pluginManagement { includeBuild("../../../node_modules/@react-native/gradle-plugin") }
+plugins { id("com.facebook.react.settings") }
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex ->
+  ex.autolinkLibrariesFromCommand(['pnpm','exec','react-native','config'])
+}
+rootProject.name = 'SelfRNExampleApp'
+include ':app'
+// The in-repo packages/kmp-sdk composite is intentionally NOT included: its :shared is a
+// diverged fork missing CloseableProvider/CameraPreviewMrzProvider, which the self-sdk-native
+// 0.1.1 nfc/ocr AARs (consumed by @selfxyz/rn-mrz-scanner / rn-nfc-passport) require. All
+// xyz.self.sdk:* artifacts resolve from mavenLocal / self-sdk-dist at 0.1.1 instead. See SD-07
+// (decommission vendored KMP SDK).

@@ -1,0 +1,68 @@
+apply plugin: "com.android.application"
+apply plugin: "com.facebook.react"
+apply plugin: "org.jetbrains.kotlin.android"
+
+project.ext.REACT_NATIVE_NODE_MODULES_DIR = file("../../../../node_modules/react-native")
+
+react {
+    root = file("../../")
+    reactNativeDir = file("../../../../node_modules/react-native")
+    codegenDir = file("../../../../node_modules/@react-native/codegen")
+    cliFile = file("../../../../node_modules/react-native/cli.js")
+    autolinkLibrariesWithApp()
+}
+
+android {
+    namespace "com.selfxyz.rnexample"
+    ndkVersion rootProject.ext.ndkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        applicationId "com.selfxyz.rnexample"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    buildFeatures {
+        buildConfig true
+        viewBinding true
+    }
+
+    sourceSets {
+        main {
+            assets.srcDirs += ["src/main/assets", "../../../../node_modules/@selfxyz/rn-sdk/assets"]
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += ['META-INF/versions/9/OSGI-INF/MANIFEST.MF']
+        }
+    }
+}
+
+dependencies {
+    implementation("com.facebook.react:react-android:0.83.9")
+    implementation("com.facebook.react:hermes-android:0.83.9")
+    implementation("xyz.self.sdk:shared:0.1.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    compileOnly("androidx.camera:camera-view:1.4.1")
+}

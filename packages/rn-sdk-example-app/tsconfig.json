@@ -1,0 +1,19 @@
+{
+  "extends": "@tsconfig/react-native/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "allowJs": true,
+    "module": "ES2020",
+    "moduleResolution": "Bundler",
+    "types": ["react-native"],
+    "baseUrl": ".",
+    // Resolve the optional capture packages from source so `tsc --noEmit` doesn't depend on their
+    // dist/*.d.ts being pre-built (their build is only run for consumers, not this typecheck).
+    "paths": {
+      "@selfxyz/rn-mrz-scanner": ["../rn-mrz-scanner/src/index.ts"],
+      "@selfxyz/rn-nfc-passport": ["../rn-nfc-passport/src/index.ts"]
+    }
+  },
+  "include": ["App.tsx", "DirectCaptureScreen.tsx", "index.js"],
+  "exclude": ["node_modules"]
+}

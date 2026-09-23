@@ -6,6 +6,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "react-native": "./dist/index.js",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "default": "./dist/index.mjs"

@@ -42,6 +42,21 @@ Pod::Spec.new do |s|
   unless passport_frameworks.empty?
     xcconfig["GCC_PREPROCESSOR_DEFINITIONS"] = "$(inherited) SELF_NFC_AVAILABLE=1"
     xcconfig["SWIFT_ACTIVE_COMPILATION_CONDITIONS"] = "$(inherited) SELF_NFC_AVAILABLE"
+    # The vendored xcframeworks are static libraries whose Swift modules live under Headers/.
+    # CocoaPods only exposes them to clang (HEADER_SEARCH_PATHS); the Swift frontend needs the
+    # module dirs on its own search path or `#if canImport(SelfSdkNfc)` is silently false — the
+    # class then compiles out while the SELF_NFC_AVAILABLE-guarded ObjC extern module still
+    # references it, breaking the link. The XCFrameworkIntermediates copy can't be used here:
+    # CocoaPods rsyncs every xcframework's Headers/ into the same dir with --delete, so the
+    # three modules clobber each other. Point Swift at the vendored slices directly instead.
+    device_headers = passport_frameworks
+      .map { |path| "\"${PODS_TARGET_SRCROOT}/#{path}/ios-arm64/Headers\"" }
+      .join(" ")
+    simulator_headers = passport_frameworks
+      .map { |path| "\"${PODS_TARGET_SRCROOT}/#{path}/ios-arm64_x86_64-simulator/Headers\"" }
+      .join(" ")
+    xcconfig["SWIFT_INCLUDE_PATHS[sdk=iphoneos*]"] = "$(inherited) #{device_headers}"
+    xcconfig["SWIFT_INCLUDE_PATHS[sdk=iphonesimulator*]"] = "$(inherited) #{simulator_headers}"
   end
   s.pod_target_xcconfig = xcconfig
 

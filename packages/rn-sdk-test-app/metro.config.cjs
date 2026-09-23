@@ -25,6 +25,8 @@ module.exports = mergeConfig(getDefaultConfig(projectRoot), {
       /.*\/packages\/rn-sdk\/node_modules\/react\/.*/,
       /.*\/packages\/mobile-sdk-alpha\/node_modules\/react-native\/.*/,
       /.*\/packages\/mobile-sdk-alpha\/node_modules\/react\/.*/,
+      /.*\/packages\/rn-sdk-example-app\/node_modules\/react-native\/.*/,
+      /.*\/packages\/rn-sdk-example-app\/node_modules\/react\/.*/,
     ],
   },
 });

@@ -1,0 +1,45 @@
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command("node", ["-p",
+                                                 'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
+
+platform :ios, min_ios_version_supported
+prepare_react_native_project!
+
+linkage = ENV["USE_FRAMEWORKS"]
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
+
+target "SelfRNExampleApp" do
+  config = use_native_modules!
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    :hermes_enabled => true,
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+  )
+
+  post_install do |installer|
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false,
+    )
+
+    # RN 0.83.9's React-RCTAppDelegate.podspec builds OTHER_CPLUSPLUSFLAGS as
+    # "... -DRCT_NEW_ARCH_ENABLED=1" + js_engine_flags(), and js_engine_flags()
+    # returns "-DUSE_HERMES=1" with no leading space. The flags glue into
+    # "-DRCT_NEW_ARCH_ENABLED=1-DUSE_HERMES=1", so the compiler defines
+    # RCT_NEW_ARCH_ENABLED as "1-DUSE_HERMES=1"; RCTAppDelegate then takes the
+    # legacy branch and throws at launch. Re-insert the missing space.
+    Dir.glob(File.join(installer.sandbox.root, "Target Support Files", "**", "*.xcconfig")).each do |path|
+      text = File.read(path)
+      fixed = text.gsub("RCT_NEW_ARCH_ENABLED=1-D", "RCT_NEW_ARCH_ENABLED=1 -D")
+      File.write(path, fixed) if fixed != text
+    end
+  end
+end

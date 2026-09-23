@@ -46,6 +46,19 @@ Pod::Spec.new do |s|
   unless mrz_frameworks.empty?
     xcconfig["GCC_PREPROCESSOR_DEFINITIONS"] = "$(inherited) SELF_OCR_AVAILABLE=1"
     xcconfig["SWIFT_ACTIVE_COMPILATION_CONDITIONS"] = "$(inherited) SELF_OCR_AVAILABLE"
+    # The vendored xcframework is a static library whose Swift module lives under Headers/.
+    # CocoaPods only exposes it to clang (HEADER_SEARCH_PATHS); the Swift frontend needs the
+    # module dir on its own search path or `#if canImport(SelfSdkOcr)` is silently false and
+    # the module compiles as the unavailable stub even with the binary present. Point Swift at
+    # the vendored slices directly (per SDK) — same rationale as selfxyz-rn-nfc-passport.
+    device_headers = mrz_frameworks
+      .map { |path| "\"${PODS_TARGET_SRCROOT}/#{path}/ios-arm64/Headers\"" }
+      .join(" ")
+    simulator_headers = mrz_frameworks
+      .map { |path| "\"${PODS_TARGET_SRCROOT}/#{path}/ios-arm64_x86_64-simulator/Headers\"" }
+      .join(" ")
+    xcconfig["SWIFT_INCLUDE_PATHS[sdk=iphoneos*]"] = "$(inherited) #{device_headers}"
+    xcconfig["SWIFT_INCLUDE_PATHS[sdk=iphonesimulator*]"] = "$(inherited) #{simulator_headers}"
   end
   s.pod_target_xcconfig = xcconfig
 end

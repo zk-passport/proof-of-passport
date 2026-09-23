@@ -1,0 +1,42 @@
+{
+  "name": "@selfxyz/rn-sdk-example-app",
+  "version": "0.0.1-alpha",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "android": "react-native run-android --verbose",
+    "build": "pnpm types",
+    "clean:xcode-env-local": "rm -f ios/.xcode.env.local",
+    "install-app": "pnpm install-app:setup && pnpm clean:xcode-env-local",
+    "install-app:setup": "cd ios && bundle install && scripts/pod-install-with-cache-fix.sh && cd ..",
+    "ios": "react-native run-ios",
+    "lint": "pnpm types",
+    "nice": "pnpm types",
+    "setup": "cd ios && bundle install && bundle exec pod install --repo-update && cd .. && pnpm clean:xcode-env-local",
+    "start": "react-native start",
+    "test": "pnpm types",
+    "types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.28.6",
+    "@selfxyz/rn-mrz-scanner": "workspace:*",
+    "@selfxyz/rn-nfc-passport": "workspace:*",
+    "@selfxyz/rn-sdk": "workspace:*",
+    "react": "^19.2.0",
+    "react-native": "0.83.9",
+    "react-native-biometrics": "^3.0.1",
+    "react-native-fs": "^2.20.0",
+    "react-native-keychain": "^9.2.3",
+    "react-native-nfc-manager": "^3.17.2",
+    "react-native-webview": "13.16.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.6",
+    "@react-native-community/cli": "^20.0.0",
+    "@react-native/gradle-plugin": "0.83.9",
+    "@react-native/metro-config": "0.83.9",
+    "@tsconfig/react-native": "^3.0.9",
+    "@types/react": "^19.2.0",
+    "typescript": "^5.9.3"
+  }
+}

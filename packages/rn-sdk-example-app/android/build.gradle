@@ -1,0 +1,74 @@
+buildscript {
+    ext {
+        buildToolsVersion = "35.0.0"
+        minSdkVersion = 24
+        compileSdkVersion = 36
+        targetSdkVersion = 36
+        ndkVersion = "27.0.12077973"
+        kotlinVersion = "2.0.0"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath('com.android.tools.build:gradle:8.12.0')
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+    }
+}
+
+plugins {
+    id("com.facebook.react") apply false
+    id("com.facebook.react.rootproject")
+}
+
+// @selfxyz/rn-sdk's optional KMP-bridge compileOnly (xyz.self.sdk:shared-android) resolves to
+// this version; pin it to the self-sdk-native release so it matches the capture packages' AARs
+// (resolved from self-sdk-dist). app/ leaves it unset and uses the in-repo kmp-sdk 0.1.0 default.
+ext.selfSharedAndroidVersion = "0.1.3"
+
+allprojects {
+    repositories {
+        // mavenLocal resolves @selfxyz/rn-sdk's KMP AAR dependency during the
+        // PATH-A spike (see specs/projects/sdk/workstreams/webview-in-app/plans/
+        // PATH-A-rn-wraps-kmp.html). Remove once SD-06 (SELF-2534) publishes
+        // KMP artifacts to a hosted Maven repository.
+        mavenLocal()
+        google()
+        mavenCentral()
+        maven {
+            // All of React Native (JS, Android binaries) is installed from npm
+            url("$rootDir/../../../node_modules/react-native/android")
+        }
+        maven {
+            // Android JSC is installed from npm
+            url("$rootDir/../../../node_modules/jsc-android/dist")
+        }
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+// self-sdk-dist injection for the optional capture packages (@selfxyz/rn-mrz-scanner ->
+// xyz.self.sdk:ocr, @selfxyz/rn-nfc-passport -> xyz.self.sdk:nfc). A library module's own
+// repositories are not consulted for the app's classpath, so the private distribution repo
+// must be declared here. Token-gated: partner/CI builds export SELF_SDK_GITHUB_TOKEN; SDK-dev
+// builds fall back to the mavenLocal above. Template mirrors
+// self-sdk-native/rn-sdk-test-app/android/build.gradle. The token value is never written into
+// the project. includeGroupByRegex confines lookups (and their auth failures) to xyz.self.sdk.
+if (System.getenv("SELF_SDK_GITHUB_TOKEN")) {
+    allprojects {
+        repositories {
+            maven {
+                url uri("https://maven.pkg.github.com/selfxyz/self-sdk-dist")
+                credentials {
+                    username = System.getenv("SELF_SDK_GITHUB_USER") ?: "self-sdk"
+                    password = System.getenv("SELF_SDK_GITHUB_TOKEN")
+                }
+                content {
+                    includeGroupByRegex("xyz\\.self\\.sdk(\\..*)?")
+                }
+            }
+        }
+    }
+}

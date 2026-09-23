@@ -156,7 +156,36 @@ function verifyAndExtract(name, version, zip, sha256, unzip) {
       `${name}.xcframework missing after extracting ${name}-${version}.xcframework.zip`
     );
   }
+  patchSwiftInterfaces(name);
   log(`installed ios/Frameworks/${name}.xcframework`);
+}
+
+// The dist interfaces were emitted without -module-interface-preserve-types-as-written, so
+// decls are qualified as `Mixpanel.X`. Inside any interface that can see the top-level
+// `Mixpanel` class, that qualifier resolves to the class instead of the module ("'X' is not a
+// member type of class 'Mixpanel.Mixpanel'") and the interface fails to compile — which makes
+// `#if canImport(SelfSdkNfc)` silently false and stubs the reader out even with the binaries
+// present. Every `Mixpanel.`-qualified name in these interfaces is a top-level type of the
+// Mixpanel module, so stripping the qualifier is safe and resolves identically.
+function patchSwiftInterfaces(name) {
+  const fwDir = path.join(FRAMEWORKS_DIR, `${name}.xcframework`);
+  const stack = [fwDir];
+  while (stack.length > 0) {
+    const dir = stack.pop();
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const entryPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        stack.push(entryPath);
+      } else if (entry.name.endsWith('.swiftinterface')) {
+        const text = fs.readFileSync(entryPath, 'utf8');
+        const patched = text.replace(/Mixpanel\.([A-Z])/g, '$1');
+        if (patched !== text) {
+          fs.writeFileSync(entryPath, patched);
+          log(`patched Mixpanel module-qualification in ${path.relative(PACKAGE_ROOT, entryPath)}`);
+        }
+      }
+    }
+  }
 }
 
 async function main() {
