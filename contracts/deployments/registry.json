@@ -1,6 +1,6 @@
 {
   "$schema": "./registry.schema.json",
-  "lastUpdated": "2026-03-02T10:19:46.004Z",
+  "lastUpdated": "2026-08-21T12:20:26Z",
   "contracts": {
     "IdentityVerificationHub": {
       "source": "IdentityVerificationHubImplV2",
@@ -44,14 +44,14 @@
       "governance": {
         "securityMultisig": "0x738f0bb37FD3b6C4Cdf8eb6FcdFaAA0CA208CB4A",
         "operationsMultisig": "0x067b18e09A10Fa03d027c1D60A098CEbbE5637f0",
-        "securityThreshold": "3/5",
-        "operationsThreshold": "2/5"
+        "securityThreshold": "3/6",
+        "operationsThreshold": "2/6"
       },
       "deployments": {
         "IdentityVerificationHub": {
           "proxy": "0xe57F4773bd9c9d8b6Cd70431117d353298B9f5BF",
-          "currentVersion": "2.13.0",
-          "currentImpl": "0x0D911083b2F2236D79EF20bb58AAf6009a1220B5"
+          "currentVersion": "2.14.0",
+          "currentImpl": "0x163983BAe19dE94A007C6C502b7389F6C359C818"
         },
         "IdentityRegistry": {
           "proxy": "0x37F5CB8cB1f6B00aa768D8aA99F1A9289802A968",
@@ -94,8 +94,8 @@
       "deployments": {
         "IdentityVerificationHub": {
           "proxy": "0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74",
-          "currentVersion": "2.13.0",
-          "currentImpl": "0x244c93516Abd58E1952452d3D8C4Ce7D454776B8"
+          "currentVersion": "2.14.0",
+          "currentImpl": "0xF821893a775E1028634633f38805B95AD3e8ec6b"
         },
         "IdentityRegistry": {
           "proxy": "0x1651ec77c3dC5997eC05f3EE6C2B0b904b516d1d",
@@ -187,6 +187,26 @@
             "deployedAt": "2026-02-09T11:26:30.941Z",
             "deployedBy": "0xC1C860804EFdA544fe79194d1a37e60b846CEdeb",
             "gitCommit": "88ae00b1"
+          }
+        }
+      },
+      "2.14.0": {
+        "initializerVersion": 12,
+        "initializerFunction": "",
+        "changelog": "Upgrade to v2.14.0",
+        "gitTag": "identityverificationhub-v2.14.0",
+        "deployments": {
+          "celo-sepolia": {
+            "impl": "0xF821893a775E1028634633f38805B95AD3e8ec6b",
+            "deployedAt": "2026-08-20T11:19:53.492Z",
+            "deployedBy": "0x82D8DaC3a386dec55a0a44DffBd3113e8A7D139B",
+            "gitCommit": "eaa208ea6"
+          },
+          "celo": {
+            "impl": "0x163983BAe19dE94A007C6C502b7389F6C359C818",
+            "deployedAt": "2026-08-21T12:20:26Z",
+            "deployedBy": "0x82D8DaC3a386dec55a0a44DffBd3113e8A7D139B",
+            "gitCommit": "c9c263580"
           }
         }
       }
