@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "build": "pnpm --filter @selfxyz/webview-app build && pnpm copy-assets && tsup",
-    "copy-assets": "rm -rf ./assets/self-wallet && mkdir -p ./assets/self-wallet && cp -r ../webview-app/dist/. ./assets/self-wallet/ && node scripts/strip-embedded-sri.cjs",
+    "copy-assets": "node scripts/copy-embedded-bundle.cjs",
     "prepublishOnly": "pnpm build",
     "test": "pnpm copy-assets && tsup && vitest run",
     "typecheck": "tsc --noEmit",

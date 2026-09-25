@@ -350,17 +350,28 @@ platform :android do
         FileUtils.rm_rf(cxx_dir)
       end
 
+      gradle_properties = {
+        "MYAPP_UPLOAD_STORE_FILE" => ENV["ANDROID_KEYSTORE_PATH"],
+        "MYAPP_UPLOAD_STORE_PASSWORD" => ENV["ANDROID_KEYSTORE_PASSWORD"],
+        "MYAPP_UPLOAD_KEY_ALIAS" => ENV["ANDROID_KEY_ALIAS"],
+        "MYAPP_UPLOAD_KEY_PASSWORD" => ENV["ANDROID_KEY_PASSWORD"] == "EMPTY" ? "" : ENV["ANDROID_KEY_PASSWORD"],
+        "reactNativeArchitectures" => android_release_architectures,
+        "selfAppArchitectures" => android_release_architectures,
+      }
+
+      # When the embedded webview bundle is skipped (WIA off — see SELF_SKIP_WALLET_BUNDLE),
+      # `assets/self-wallet` isn't produced; tell @selfxyz/rn-sdk's release guard that the
+      # missing bundle is expected so bundleRelease doesn't fail. Only set when skipping so
+      # the guard stays strict when we DO ship the bundle (WIA on).
+      if ENV["SELF_SKIP_WALLET_BUNDLE"] == "1"
+        gradle_properties["SelfRnSdk_selfWalletBundleOptional"] = "true"
+        UI.message("📦 Webview bundle skipped; passing SelfRnSdk_selfWalletBundleOptional=true")
+      end
+
       gradle(
         task: "clean bundleRelease --stacktrace --info",
         project_dir: "android/",
-        properties: {
-          "MYAPP_UPLOAD_STORE_FILE" => ENV["ANDROID_KEYSTORE_PATH"],
-          "MYAPP_UPLOAD_STORE_PASSWORD" => ENV["ANDROID_KEYSTORE_PASSWORD"],
-          "MYAPP_UPLOAD_KEY_ALIAS" => ENV["ANDROID_KEY_ALIAS"],
-          "MYAPP_UPLOAD_KEY_PASSWORD" => ENV["ANDROID_KEY_PASSWORD"] == "EMPTY" ? "" : ENV["ANDROID_KEY_PASSWORD"],
-          "reactNativeArchitectures" => android_release_architectures,
-          "selfAppArchitectures" => android_release_architectures,
-        },
+        properties: gradle_properties,
       )
     end
 

@@ -52,7 +52,7 @@ Today `app/` (Self wallet) runs the **entire** verification flow natively (via `
 - Android native = runtime-cloned private repos (`setup-private-modules.cjs`, auth `SELFXYZ_APP_TOKEN`); iOS = git pods. app does **not** bundle webview-app today (only the dev screen loads it).
 - To consume AARs: add `self-sdk-dist` Maven repo + `SELF_SDK_GITHUB_TOKEN` to `app/android/build.gradle` `allprojects` and EAS/CI; EAS is a POC (`eas.json` single `poc` profile) — production is GitHub Actions + fastlane.
 - Dedup at cutover: remove app's `jmrtd:0.7.35`, `:react-native-passport-reader`, `:passportreader`, `QKMRZScanner`, direct `SelfNFCPassportReader` pod, direct ML Kit text-recognition; strip the two clones from `setup-private-modules.cjs`; keep `:mobile-sdk-alpha`, `jp2-android` exclusion, barcode force. Re-run `check-16kb-alignment.sh` on the AAR AAB.
-- Size: ~58 MB webview bundle rides along; net size improves only after vendored native removed.
+- Size: the embedded webview bundle is **58 MB** (of which ~21 MB is `*.js.map` source maps). Two size measures landed: (1) `copy-assets` now **excludes source maps** (via `packages/rn-sdk/scripts/copy-embedded-bundle.cjs`); (2) store builds **skip the bundle entirely while `IS_WIA_ENABLED` is off** — `mobile-deploy.yml` sets `SELF_SKIP_WALLET_BUNDLE` from the flag, the copy script no-ops, Android passes `-PSelfRnSdk_selfWalletBundleOptional=true`, and the iOS "Copy self-wallet assets" phase early-exits. The bundle auto-returns when the flag flips. Net size still improves further only after vendored native is removed at cutover.
 
 ## Minimal version (small, non-destructive — reasonable next step)
 Prove the scaffolded path completes **one** real flow on device behind the flag, without touching production users:

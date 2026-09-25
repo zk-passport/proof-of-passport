@@ -403,7 +403,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\nSRC=\"${PROJECT_DIR}/../node_modules/@selfxyz/rn-sdk/assets/self-wallet\"\nDST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/self-wallet\"\nrm -rf \"$DST\"\nmkdir -p \"$DST\"\ncp -R \"$SRC\"/. \"$DST\"\n";
+			shellScript = "set -e\nSRC=\"${PROJECT_DIR}/../node_modules/@selfxyz/rn-sdk/assets/self-wallet\"\nDST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/self-wallet\"\n# Skip when the webview bundle is intentionally not produced (WIA off) or absent,\n# so the archive doesn't hard-fail on a missing source (set -e + cp).\nif [ \"${SELF_SKIP_WALLET_BUNDLE:-0}\" = \"1\" ] || [ ! -d \"$SRC\" ]; then\n  echo \"Copy self-wallet assets: skipped (SELF_SKIP_WALLET_BUNDLE=${SELF_SKIP_WALLET_BUNDLE:-0})\"\n  exit 0\nfi\nrm -rf \"$DST\"\nmkdir -p \"$DST\"\ncp -R \"$SRC\"/. \"$DST\"\n";
 		};
 		E88323604DFAAA92032925C9 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;

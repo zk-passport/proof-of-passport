@@ -632,6 +632,20 @@ jobs:
 
           echo "✅ Provisioning profile installation steps completed."
 
+      - name: Determine webview-bundle inclusion (WIA flag)
+        if: inputs.platform != 'android'
+        run: |
+          # Ship the embedded webview bundle only when the WebView path is on
+          # (IS_WIA_ENABLED). While it's off the bundle is dead weight, so skip it
+          # to trim app size. Tracks the source flag so it auto-returns when flipped.
+          if grep -qE 'IS_WIA_ENABLED[[:space:]]*=[[:space:]]*true' app/src/utils/devUtils.ts; then
+            echo "SELF_SKIP_WALLET_BUNDLE=0" >> "$GITHUB_ENV"
+            echo "WIA enabled → embedding webview bundle"
+          else
+            echo "SELF_SKIP_WALLET_BUNDLE=1" >> "$GITHUB_ENV"
+            echo "WIA disabled → skipping webview bundle (size trim)"
+          fi
+
       - name: Build Dependencies (iOS)
         if: inputs.platform != 'android'
         run: |
@@ -1101,6 +1115,20 @@ jobs:
         env:
           SELFXYZ_APP_TOKEN: ${{ steps.github-token.outputs.token }}
           CI: true
+
+      - name: Determine webview-bundle inclusion (WIA flag)
+        if: inputs.platform != 'ios'
+        run: |
+          # Ship the embedded webview bundle only when the WebView path is on
+          # (IS_WIA_ENABLED). While it's off the bundle is dead weight, so skip it
+          # to trim app size. Tracks the source flag so it auto-returns when flipped.
+          if grep -qE 'IS_WIA_ENABLED[[:space:]]*=[[:space:]]*true' app/src/utils/devUtils.ts; then
+            echo "SELF_SKIP_WALLET_BUNDLE=0" >> "$GITHUB_ENV"
+            echo "WIA enabled → embedding webview bundle"
+          else
+            echo "SELF_SKIP_WALLET_BUNDLE=1" >> "$GITHUB_ENV"
+            echo "WIA disabled → skipping webview bundle (size trim)"
+          fi
 
       - name: Build Dependencies (Android)
         if: inputs.platform != 'ios'
