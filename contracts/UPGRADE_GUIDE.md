@@ -296,9 +296,9 @@ relayer" in which both are briefly true, so register and disclose are unavailabl
 transactions. Plan for that window rather than trying to order it away.
 
 **v2.14.0 must be deployed first, and it is the reason this rollout has no unavoidable gap.** `registerProverKey`,
-`revokeProverKey` and the four `updateProver…` setters ship in v2.14.0; the deployed hubs are older (celo 2.13.0,
-celo-sepolia 2.12.0), so none of those functions exist on-chain today. Steps 2–5 below cannot be executed against the
-currently-deployed hub at all.
+`revokeProverKey` and the four `updateProver…` setters ship in v2.14.0; both deployed hubs are older — celo and
+celo-sepolia are each on 2.13.0 — so none of those functions exist on-chain today. Steps 2–5 below cannot be executed
+against the currently-deployed hub at all.
 
 v2.14.0 is a drop-in for that purpose: it keeps the 3-argument `registerCommitment` and the pre-signature `proofPayload`
 layout, adds no enforcement, and therefore changes nothing the relayer sees. It is the intermediate compatibility
