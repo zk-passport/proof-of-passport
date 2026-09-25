@@ -27,6 +27,21 @@ function createDeferred(): Deferred {
   return { promise, resolve };
 }
 
+describe('derivePrivateKey (BIP44 parity guard)', () => {
+  // Golden vector: the well-known Hardhat/Anvil test mnemonic. Its account-0
+  // key at m/44'/60'/0'/0/0 is the canonical value below — exactly what
+  // ethers.HDNodeWallet.fromPhrase(phrase).privateKey produces. Locking it
+  // here pins @scure (bip39 mnemonicToSeedSync + bip32 HDKey) to ethers at the
+  // same path, so the WebView's derivation can never silently diverge from the
+  // app's ethers derivation. That equality is the B2 correctness guarantee:
+  // the migrated/translated identity must be the SAME private key, since the
+  // app and WebView derive it independently from the same recovery phrase.
+  it('derives the canonical BIP44 account-0 key for the Hardhat mnemonic', () => {
+    const mnemonic = 'test test test test test test test test test test test junk';
+    expect(derivePrivateKey(mnemonic)).toBe('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80');
+  });
+});
+
 describe('restoreSecretFromMnemonic', () => {
   const storageState = new Map<string, string>();
 

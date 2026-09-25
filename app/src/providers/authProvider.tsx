@@ -477,6 +477,48 @@ export function getPrivateKeyFromMnemonic(mnemonic: string) {
   return wallet.privateKey;
 }
 
+/**
+ * Reads the stored mnemonic phrase WITHOUT minting a new one. Presence is checked
+ * first so a missing secret returns null instead of creating a fresh identity.
+ * Reads through the same `createKeychainOptions`/`service: SERVICE_NAME` path and
+ * `JSON.parse(...).phrase` shape as `loadOrCreateMnemonic`/`unsafe_getPrivateKey`.
+ */
+export async function getStoredMnemonicPhrase(opts?: {
+  requireBiometric?: boolean;
+}): Promise<string | null> {
+  if (!(await hasSecretStored())) {
+    return null;
+  }
+  try {
+    const { getOptions } = await createKeychainOptions({
+      requireAuth: !!opts?.requireBiometric,
+    });
+    const stored = await Keychain.getGenericPassword({
+      ...getOptions,
+      service: SERVICE_NAME,
+    });
+    if (!stored) {
+      return null;
+    }
+    const mnemonic = JSON.parse(stored.password) as Mnemonic;
+    return mnemonic?.phrase ?? null;
+  } catch {
+    // Unavailable / user-cancelled biometric prompt / parse error.
+    return null;
+  }
+}
+
+/**
+ * Thin phrase-only wrapper over `restoreFromMnemonic` so callers outside the
+ * provider (e.g. the WebView secureStorage adapter) can persist a phrase to the
+ * legacy `secret` service without owning keychain-option building. Behavior is
+ * unchanged from `restoreFromMnemonic`.
+ */
+export async function restoreMnemonicPhrase(phrase: string): Promise<void> {
+  const options = await createKeychainOptions({ requireAuth: true });
+  await restoreFromMnemonic(phrase, options);
+}
+
 export async function hasSecretStored() {
   try {
     const seed = await Keychain.getGenericPassword({ service: SERVICE_NAME });

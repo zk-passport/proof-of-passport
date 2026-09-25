@@ -16,6 +16,7 @@ import {
   type LoadDiagnosticEvent,
   type LoadErrorInfo,
   type NavigationCallbacks,
+  type SecureStorageStore,
   type SelfSdkError,
   SelfVerification,
   type VerificationRequest,
@@ -29,6 +30,7 @@ import {
 } from '@/config/sentry';
 import type { RootStackParamList } from '@/navigation';
 import { selfClientDocumentsAdapter } from '@/providers/passportDataProvider';
+import { createWebViewSecureStorageAdapter } from '@/providers/webViewSecureStorageAdapter';
 import {
   WebViewErrorOverlay,
   WebViewLoadingOverlay,
@@ -89,6 +91,13 @@ const WebViewHostScreen: React.FC = () => {
         selfClientDocumentsAdapter.saveDocument(id, data as never),
       delete: id => selfClientDocumentsAdapter.deleteDocument(id),
     }),
+    [],
+  );
+
+  // Host-side translating store: the WebView reads/writes the user's existing
+  // legacy keychain (identity + documents) instead of a separate self_sdk_* store.
+  const secureStorage = useMemo<SecureStorageStore>(
+    () => createWebViewSecureStorageAdapter(),
     [],
   );
 
@@ -215,6 +224,7 @@ const WebViewHostScreen: React.FC = () => {
         analytics={analytics}
         navigation={navigationCallbacks}
         documents={documents}
+        secureStorage={secureStorage}
         onLoadDiagnostic={handleLoadDiagnostic}
         renderLoading={renderLoading}
         renderError={renderError}

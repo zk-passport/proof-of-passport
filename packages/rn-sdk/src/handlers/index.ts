@@ -4,15 +4,26 @@
 
 import type { BridgeHandler } from '../bridge/types';
 import type { MessageRouter } from '../bridge/MessageRouter';
-import type { VerificationRequest, VerificationResult, SelfSdkError } from '../SelfVerification';
-import { LifecycleHandler, type OperatingMode, type Capabilities } from './LifecycleHandler';
+import type {
+  VerificationRequest,
+  VerificationResult,
+  SelfSdkError,
+} from '../SelfVerification';
+import {
+  LifecycleHandler,
+  type OperatingMode,
+  type Capabilities,
+} from './LifecycleHandler';
 import { BiometricHandler } from './BiometricHandler';
-import { KeychainHandler } from './KeychainHandler';
+import { KeychainHandler, type SecureStorageStore } from './KeychainHandler';
 import { NfcHandler } from './NfcHandler';
 import { CameraHandler } from './CameraHandler';
 import { AnalyticsHandler, type AnalyticsSink } from './AnalyticsHandler';
 import { HapticHandler } from './HapticHandler';
-import { NavigationHandler, type NavigationCallbacks } from './NavigationHandler';
+import {
+  NavigationHandler,
+  type NavigationCallbacks,
+} from './NavigationHandler';
 import { DocumentsHandler, type DocumentsStore } from './DocumentsHandler';
 import { CryptoHandler, type SelfCryptoModule } from './CryptoHandler';
 
@@ -26,6 +37,7 @@ export interface HandlersConfig {
   analytics?: AnalyticsSink;
   navigation?: NavigationCallbacks;
   documents?: DocumentsStore;
+  secureStorage?: SecureStorageStore;
   crypto?: SelfCryptoModule;
   mode?: OperatingMode;
   referenceId?: string;
@@ -33,7 +45,7 @@ export interface HandlersConfig {
 
 export function createHandlers(config: HandlersConfig): BridgeHandler[] {
   const biometric = new BiometricHandler();
-  const keychain = new KeychainHandler();
+  const keychain = new KeychainHandler(undefined, config.secureStorage);
   const nfc = new NfcHandler(config.router);
   const camera = new CameraHandler();
 
@@ -74,6 +86,8 @@ export { NavigationHandler } from './NavigationHandler';
 export type { NavigationCallbacks } from './NavigationHandler';
 export { DocumentsHandler } from './DocumentsHandler';
 export type { DocumentsStore } from './DocumentsHandler';
+export { KeychainHandler } from './KeychainHandler';
+export type { KeychainModule, SecureStorageStore } from './KeychainHandler';
 export { CryptoHandler } from './CryptoHandler';
 export type { SelfCryptoModule } from './CryptoHandler';
 export { LifecycleHandler } from './LifecycleHandler';

@@ -4,13 +4,24 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { KeychainHandler } from '../handlers/KeychainHandler';
-import type { KeychainModule } from '../handlers/KeychainHandler';
+import type {
+  KeychainModule,
+  SecureStorageStore,
+} from '../handlers/KeychainHandler';
 
 function createMockKeychain(): KeychainModule {
   return {
     getGenericPassword: vi.fn(),
     setGenericPassword: vi.fn(),
     resetGenericPassword: vi.fn(),
+  };
+}
+
+function createMockStore(): SecureStorageStore {
+  return {
+    get: vi.fn(),
+    set: vi.fn(),
+    remove: vi.fn(),
   };
 }
 
@@ -30,13 +41,20 @@ describe('KeychainHandler', () => {
 
   describe('set + get roundtrip', () => {
     it('stores a value and retrieves it', async () => {
-      (mockKeychain.setGenericPassword as ReturnType<typeof vi.fn>).mockResolvedValue(true);
-      (mockKeychain.getGenericPassword as ReturnType<typeof vi.fn>).mockResolvedValue({
+      (
+        mockKeychain.setGenericPassword as ReturnType<typeof vi.fn>
+      ).mockResolvedValue(true);
+      (
+        mockKeychain.getGenericPassword as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({
         username: 'auth_token',
         password: 'abc123',
       });
 
-      const setResult = await handler.handle('set', { key: 'auth_token', value: 'abc123' });
+      const setResult = await handler.handle('set', {
+        key: 'auth_token',
+        value: 'abc123',
+      });
       expect(setResult).toBeNull();
       expect(mockKeychain.setGenericPassword).toHaveBeenCalledWith(
         'auth_token',
@@ -54,7 +72,9 @@ describe('KeychainHandler', () => {
 
   describe('get', () => {
     it('returns null for nonexistent key', async () => {
-      (mockKeychain.getGenericPassword as ReturnType<typeof vi.fn>).mockResolvedValue(false);
+      (
+        mockKeychain.getGenericPassword as ReturnType<typeof vi.fn>
+      ).mockResolvedValue(false);
 
       const result = await handler.handle('get', { key: 'nonexistent' });
       expect(result).toBeNull();
@@ -63,7 +83,9 @@ describe('KeychainHandler', () => {
 
   describe('remove', () => {
     it('removes a key and returns null', async () => {
-      (mockKeychain.resetGenericPassword as ReturnType<typeof vi.fn>).mockResolvedValue(true);
+      (
+        mockKeychain.resetGenericPassword as ReturnType<typeof vi.fn>
+      ).mockResolvedValue(true);
 
       const result = await handler.handle('remove', { key: 'auth_token' });
       expect(result).toBeNull();
@@ -108,6 +130,62 @@ describe('KeychainHandler', () => {
     it('throws METHOD_NOT_FOUND', async () => {
       await expect(handler.handle('clear', {})).rejects.toThrow(
         'Unknown secureStorage method: clear',
+      );
+    });
+  });
+
+  describe('injected SecureStorageStore', () => {
+    let store: SecureStorageStore;
+    let storeHandler: KeychainHandler;
+
+    beforeEach(() => {
+      store = createMockStore();
+      storeHandler = new KeychainHandler(mockKeychain, store);
+    });
+
+    it('is available when a store is provided', () => {
+      expect(storeHandler.isAvailable()).toBe(true);
+    });
+
+    it('delegates get to the store and forwards requireBiometric', async () => {
+      (store.get as ReturnType<typeof vi.fn>).mockResolvedValue('stored');
+
+      const result = await storeHandler.handle('get', {
+        key: 'k',
+        requireBiometric: true,
+      });
+
+      expect(result).toBe('stored');
+      expect(store.get).toHaveBeenCalledWith('k', { requireBiometric: true });
+      expect(mockKeychain.getGenericPassword).not.toHaveBeenCalled();
+    });
+
+    it('delegates set to the store and returns null', async () => {
+      (store.set as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+
+      const result = await storeHandler.handle('set', { key: 'k', value: 'v' });
+
+      expect(result).toBeNull();
+      expect(store.set).toHaveBeenCalledWith('k', 'v');
+      expect(mockKeychain.setGenericPassword).not.toHaveBeenCalled();
+    });
+
+    it('delegates remove to the store and returns null', async () => {
+      (store.remove as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+
+      const result = await storeHandler.handle('remove', { key: 'k' });
+
+      expect(result).toBeNull();
+      expect(store.remove).toHaveBeenCalledWith('k');
+      expect(mockKeychain.resetGenericPassword).not.toHaveBeenCalled();
+    });
+
+    it('still validates key/value params', async () => {
+      await expect(storeHandler.handle('get', {})).rejects.toThrow(
+        'Key parameter required',
+      );
+      await expect(storeHandler.handle('set', { key: 'k' })).rejects.toThrow(
+        'Value parameter required',
       );
     });
   });

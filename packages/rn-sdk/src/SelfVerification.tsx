@@ -26,6 +26,7 @@ import { createHandlers } from './handlers';
 import type { AnalyticsSink } from './handlers/AnalyticsHandler';
 import type { NavigationCallbacks } from './handlers/NavigationHandler';
 import type { DocumentsStore } from './handlers/DocumentsHandler';
+import type { SecureStorageStore } from './handlers/KeychainHandler';
 import type { SelfCryptoModule } from './handlers/CryptoHandler';
 import type { OperatingMode } from './handlers/LifecycleHandler';
 import { WebViewLoadEvents } from './analytics-events';
@@ -147,12 +148,13 @@ export interface SelfVerificationProps {
   /**
    * Bridge handler injection points. Each is optional; omitting leaves the
    * handler with default behavior (analytics is silent, navigation reports
-   * not-handled, documents uses an in-memory store, crypto requires the
-   * native SelfCrypto module).
+   * not-handled, documents uses an in-memory store, secureStorage uses
+   * react-native-keychain, crypto requires the native SelfCrypto module).
    */
   analytics?: AnalyticsSink;
   navigation?: NavigationCallbacks;
   documents?: DocumentsStore;
+  secureStorage?: SecureStorageStore;
   crypto?: SelfCryptoModule;
   /**
    * Prototype flag — when true, route `secureStorage.*` bridge messages
@@ -214,7 +216,10 @@ function makeReferenceId(): string {
   return `corr-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function buildRequestSearch(request: VerificationRequest, referenceId: string): string {
+function buildRequestSearch(
+  request: VerificationRequest,
+  referenceId: string,
+): string {
   const params = new URLSearchParams();
   const set = (key: string, value: string | number | undefined) => {
     if (value === undefined || value === null) return;
@@ -268,6 +273,7 @@ export const SelfVerification: React.FC<SelfVerificationProps> = ({
   analytics,
   navigation,
   documents,
+  secureStorage,
   crypto,
   useKmpBridge = false,
   spinnerTimeoutMs = DEFAULT_SPINNER_TIMEOUT_MS,
@@ -291,11 +297,16 @@ export const SelfVerification: React.FC<SelfVerificationProps> = ({
     const { referenceId: _omitted, ...rest } = request;
     return JSON.stringify(rest);
   }, [request]);
-  const generatedReferenceRef = useRef<{ key: string; id: string } | null>(null);
+  const generatedReferenceRef = useRef<{ key: string; id: string } | null>(
+    null,
+  );
   let referenceId = providedReferenceId;
   if (!referenceId) {
     if (generatedReferenceRef.current?.key !== requestIdentity) {
-      generatedReferenceRef.current = { key: requestIdentity, id: makeReferenceId() };
+      generatedReferenceRef.current = {
+        key: requestIdentity,
+        id: makeReferenceId(),
+      };
     }
     referenceId = generatedReferenceRef.current.id;
   }
@@ -352,7 +363,10 @@ export const SelfVerification: React.FC<SelfVerificationProps> = ({
       options?: { force?: boolean },
     ) => {
       const prev = loadStageRef.current;
-      if ((prev === 'ready' && !options?.force) || prev === 'version_mismatch') {
+      if (
+        (prev === 'ready' && !options?.force) ||
+        prev === 'version_mismatch'
+      ) {
         return;
       }
       if (prev === 'failed' && stage !== 'version_mismatch') return;
@@ -476,6 +490,7 @@ export const SelfVerification: React.FC<SelfVerificationProps> = ({
       analytics,
       navigation: navigationWithBack,
       documents,
+      secureStorage,
       crypto,
       mode,
       referenceId,
@@ -502,6 +517,7 @@ export const SelfVerification: React.FC<SelfVerificationProps> = ({
     analytics,
     navigationWithBack,
     documents,
+    secureStorage,
     crypto,
     mode,
     referenceId,
@@ -552,19 +568,26 @@ export const SelfVerification: React.FC<SelfVerificationProps> = ({
     [router, kmpTransport],
   );
 
-  const requestSearch = useMemo(() => buildRequestSearch(request, referenceId), [request, referenceId]);
+  const requestSearch = useMemo(
+    () => buildRequestSearch(request, referenceId),
+    [request, referenceId],
+  );
 
   const source = useMemo(() => {
     if (isDevServer && devServerUrl) {
       const sep = devServerUrl.includes('?') ? '&' : '?';
-      const uri = requestSearch ? `${devServerUrl}${sep}${requestSearch}` : devServerUrl;
+      const uri = requestSearch
+        ? `${devServerUrl}${sep}${requestSearch}`
+        : devServerUrl;
       return { uri };
     }
     const appendSearch = (uri: string) =>
       requestSearch ? `${uri}?${requestSearch}` : uri;
     const mainBundlePath = resolveBundlePath(rnfsMainBundlePath, bundleRootUri);
     return Platform.select({
-      android: { uri: appendSearch('file:///android_asset/self-wallet/index.html') },
+      android: {
+        uri: appendSearch('file:///android_asset/self-wallet/index.html'),
+      },
       ios: {
         uri: appendSearch(
           mainBundlePath
@@ -604,15 +627,21 @@ export const SelfVerification: React.FC<SelfVerificationProps> = ({
   const overlay = useMemo<React.ReactNode>(() => {
     if (loadStage === 'ready') return null;
     if (loadStage === 'loading' || loadStage === 'slow') {
-      return renderLoading
-        ? renderLoading(loadStage)
-        : <DefaultLoadingOverlay stage={loadStage} />;
+      return renderLoading ? (
+        renderLoading(loadStage)
+      ) : (
+        <DefaultLoadingOverlay stage={loadStage} />
+      );
     }
     const info: LoadErrorInfo =
       loadStage === 'version_mismatch'
         ? { kind: 'version_mismatch', canRetry: false, onRetry: retry }
         : { kind: errorKind ?? 'load_error', canRetry: true, onRetry: retry };
-    return renderError ? renderError(info) : <DefaultErrorOverlay info={info} />;
+    return renderError ? (
+      renderError(info)
+    ) : (
+      <DefaultErrorOverlay info={info} />
+    );
   }, [loadStage, errorKind, renderLoading, renderError, retry]);
 
   return (

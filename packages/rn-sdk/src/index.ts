@@ -16,7 +16,10 @@ export {
 export { WebViewLoadEvents } from './analytics-events';
 
 export { MessageRouter } from './bridge/MessageRouter';
-export { KmpBridgeTransport, type KmpBridgeTransportConfig } from './bridge/KmpBridgeTransport';
+export {
+  KmpBridgeTransport,
+  type KmpBridgeTransportConfig,
+} from './bridge/KmpBridgeTransport';
 
 export { type BridgeHandler, BridgeHandlerError } from './bridge/types';
 
@@ -28,6 +31,8 @@ export {
   type NavigationCallbacks,
   DocumentsHandler,
   type DocumentsStore,
+  KeychainHandler,
+  type SecureStorageStore,
   CryptoHandler,
   type SelfCryptoModule,
   LifecycleHandler,
