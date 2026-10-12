@@ -18,6 +18,7 @@ import {
   getFeatureFlag as getFeatureFlagShared,
   getLocalOverrides as getLocalOverridesShared,
   initRemoteConfig as initRemoteConfigShared,
+  readFeatureFlag as readFeatureFlagShared,
   refreshRemoteConfig as refreshRemoteConfigShared,
   setLocalOverride as setLocalOverrideShared,
 } from '@/config/remoteConfig.shared';
@@ -54,9 +55,18 @@ const mobileRemoteConfigBackend: RemoteConfigBackend = {
   fetchAndActivate: async (): Promise<boolean> => {
     return await remoteConfig().fetchAndActivate();
   },
+  activate: async (): Promise<boolean> => {
+    return await remoteConfig().activate();
+  },
+  onConfigUpdated: listener => {
+    return remoteConfig().onConfigUpdated((event, error) =>
+      listener(event, error),
+    );
+  },
 };
 
 export type { FeatureFlagValue } from '@/config/remoteConfig.shared';
+export { subscribeToRemoteConfig } from '@/config/remoteConfig.shared';
 
 export const clearAllLocalOverrides = () =>
   clearAllLocalOverridesShared(mobileStorageBackend);
@@ -79,6 +89,16 @@ export const getFeatureFlag = <T extends FeatureFlagValue>(
   );
 export const getLocalOverrides = () =>
   getLocalOverridesShared(mobileStorageBackend);
+export const readFeatureFlag = <T extends FeatureFlagValue>(
+  flag: string,
+  defaultValue: T,
+) =>
+  readFeatureFlagShared(
+    mobileRemoteConfigBackend,
+    mobileStorageBackend,
+    flag,
+    defaultValue,
+  );
 export const initRemoteConfig = () =>
   initRemoteConfigShared(mobileRemoteConfigBackend);
 // Re-export types for convenience

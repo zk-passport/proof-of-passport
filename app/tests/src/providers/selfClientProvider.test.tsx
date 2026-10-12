@@ -373,6 +373,7 @@ describe('SelfClientProvider', () => {
         documentTypes: ['p', 'kyc'],
       });
 
+      expect(isKycFlowEnabled).toHaveBeenCalledWith('US');
       expect(navigationRef.navigate).toHaveBeenCalledWith('IDPicker', {
         countryCode: 'US',
         documentTypes: ['p'],
@@ -393,6 +394,28 @@ describe('SelfClientProvider', () => {
         'IDPicker',
         expect.anything(),
       );
+    });
+
+    it('routes to ComingSoon when the flag turns off while the notice is open', async () => {
+      isKycFlowEnabled.mockReturnValue(true);
+      const listeners = renderProvider();
+      await act(async () => {
+        await listeners.get(SdkEvents.DOCUMENT_TYPE_SELECTED)?.({
+          documentType: 'kyc',
+          countryCode: 'US',
+        });
+      });
+      expect(useKycFaucetNoticeStore.getState().isOpen).toBe(true);
+
+      isKycFlowEnabled.mockReturnValue(false);
+      await act(async () => {
+        await useKycFaucetNoticeStore.getState().onContinue?.();
+      });
+
+      expect(navigationRef.navigate).toHaveBeenCalledWith('ComingSoon', {
+        countryCode: 'US',
+      });
+      expect(createKycSession).not.toHaveBeenCalled();
     });
 
     it('routes a stray kyc selection to ComingSoon without opening the notice', async () => {

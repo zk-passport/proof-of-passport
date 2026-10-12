@@ -7,13 +7,13 @@ export type {
   KycVerificationResult,
   SessionResponse,
 } from '@/integrations/kyc/types';
-export {
-  isKycFlowEnabled,
-  KYC_FLOW_ENABLED,
-  KYC_PROVIDER,
-} from '@/integrations/kyc/constants';
+export { KYC_PROVIDER } from '@/integrations/kyc/constants';
 export {
   type KycLaunchConfig,
   createKycSession,
   launchKycVerification,
 } from '@/integrations/kyc/kycService';
+export {
+  isKycFlowEnabled,
+  useKycFlowEnabled,
+} from '@/stores/kycAvailabilityStore';
