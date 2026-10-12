@@ -218,6 +218,39 @@ export const getAllFeatureFlags = async (
   }
 };
 
+/**
+ * Resolves a flag (local override, then remote value, then `defaultValue`).
+ * Unlike `getFeatureFlag`, a failed read rejects instead of returning the
+ * default, so callers that cache the result can keep their last known value.
+ */
+export const readFeatureFlag = async <T extends FeatureFlagValue>(
+  remoteConfig: RemoteConfigBackend,
+  storage: StorageBackend,
+  flag: string,
+  defaultValue: T,
+): Promise<T> => {
+  // Check local overrides first
+  const localOverrides = await getLocalOverrides(storage);
+  if (Object.prototype.hasOwnProperty.call(localOverrides, flag)) {
+    return localOverrides[flag] as T;
+  }
+
+  // For string flags, only override the baked-in default when the server has
+  // actually set a value. An explicit empty string is a valid remote value
+  // (used to hide optional UI copy), so we key off the value source rather
+  // than emptiness.
+  if (typeof defaultValue === 'string') {
+    const configValue = remoteConfig.getValue(flag);
+    if (configValue.getSource() === 'remote') {
+      return configValue.asString() as T;
+    }
+    return defaultValue;
+  }
+
+  // Fall back to remote config for number and boolean flags
+  return getRemoteConfigValue(remoteConfig, flag, defaultValue) as T;
+};
+
 export const getFeatureFlag = async <T extends FeatureFlagValue>(
   remoteConfig: RemoteConfigBackend,
   storage: StorageBackend,
@@ -225,26 +258,7 @@ export const getFeatureFlag = async <T extends FeatureFlagValue>(
   defaultValue: T,
 ): Promise<T> => {
   try {
-    // Check local overrides first
-    const localOverrides = await getLocalOverrides(storage);
-    if (Object.prototype.hasOwnProperty.call(localOverrides, flag)) {
-      return localOverrides[flag] as T;
-    }
-
-    // For string flags, only override the baked-in default when the server has
-    // actually set a value. An explicit empty string is a valid remote value
-    // (used to hide optional UI copy), so we key off the value source rather
-    // than emptiness.
-    if (typeof defaultValue === 'string') {
-      const configValue = remoteConfig.getValue(flag);
-      if (configValue.getSource() === 'remote') {
-        return configValue.asString() as T;
-      }
-      return defaultValue;
-    }
-
-    // Fall back to remote config for number and boolean flags
-    return getRemoteConfigValue(remoteConfig, flag, defaultValue) as T;
+    return await readFeatureFlag(remoteConfig, storage, flag, defaultValue);
   } catch (error) {
     console.error('Failed to get feature flag:', error);
     return defaultValue;
@@ -311,12 +325,16 @@ export const initRemoteConfig = async (
   await remoteConfig.setConfigSettings({
     minimumFetchIntervalMillis: __DEV__ ? 0 : 3600000,
   });
+  // Values activated on a previous launch are readable right away. Publish
+  // them before the network round-trip so a cached restriction applies even
+  // when the fetch is slow or offline.
+  remoteConfigInitialized = true;
+  notifyRemoteConfigListeners();
   try {
     await remoteConfig.fetchAndActivate();
   } catch (err) {
     console.error('Remote config fetch failed', err);
   }
-  remoteConfigInitialized = true;
   notifyRemoteConfigListeners();
   startRealtimeUpdates(remoteConfig);
 };

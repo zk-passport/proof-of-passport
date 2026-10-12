@@ -48,6 +48,7 @@ export {
   getFeatureFlag,
   getLocalOverrides,
   initRemoteConfig,
+  readFeatureFlag,
   refreshRemoteConfig,
   setLocalOverride,
   subscribeToRemoteConfig,

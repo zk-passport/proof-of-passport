@@ -485,6 +485,46 @@ describe('useKycLauncher', () => {
     expect(mockIsKycFlowEnabled).toHaveBeenCalledWith('IND');
   });
 
+  it('does not create a session for a disabled country', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    mockIsKycFlowEnabled.mockImplementation(
+      (countryCode?: string) => countryCode !== 'IND',
+    );
+    const { result } = renderHook(() => useKycLauncher({ countryCode: 'IND' }));
+
+    expect(result.current.isKycAvailable).toBe(false);
+    await act(async () => {
+      await result.current.launchKycVerification();
+    });
+
+    expect(mockCreateKycSession).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('re-checks availability after the faucet notice before creating a session', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const { result } = renderHook(() => useKycLauncher({ countryCode: 'US' }));
+    expect(result.current.isKycAvailable).toBe(true);
+
+    // The flag flips while the notice is on screen; the continuation must
+    // observe the new value.
+    mockShowModal.mockImplementation(params => {
+      if (params.buttonText === KYC_FAUCET_NOTICE_COPY.continueText) {
+        mockIsKycFlowEnabled.mockReturnValue(false);
+        Promise.resolve(params.onButtonPress()).catch(() => undefined);
+      }
+    });
+
+    await act(async () => {
+      await result.current.launchKycVerification();
+    });
+
+    expect(noticeModals().length).toBeGreaterThan(0);
+    expect(mockCreateKycSession).not.toHaveBeenCalled();
+    expect(mockStartKycVerification).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
   describe('when the KYC flow is disabled', () => {
     beforeEach(() => {
       mockIsKycFlowEnabled.mockReturnValue(false);

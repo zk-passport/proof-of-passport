@@ -4,7 +4,10 @@
 
 import { create } from 'zustand';
 
-import { getFeatureFlag, subscribeToRemoteConfig } from '@/config/remoteConfig';
+import {
+  readFeatureFlag,
+  subscribeToRemoteConfig,
+} from '@/config/remoteConfig';
 import {
   DEFAULT_KYC_FLOW_DISABLED_COUNTRIES,
   DEFAULT_KYC_FLOW_ENABLED,
@@ -46,19 +49,27 @@ const evaluate = (
   return !disabledCountries.includes(normalized);
 };
 
+let latestSync = 0;
+
 /**
  * Re-reads the KYC flags from remote config (local overrides win) into the
- * store so the synchronous gates below reflect the latest activation.
+ * store so the synchronous gates below reflect the latest activation. A read
+ * failure keeps the last known values rather than falling back to defaults,
+ * and a sync that is overtaken by a newer one is discarded.
  */
 export const syncKycAvailability = async (): Promise<void> => {
+  const sync = ++latestSync;
   try {
     const [enabled, disabledCountriesRaw] = await Promise.all([
-      getFeatureFlag(KYC_FLOW_ENABLED_FLAG, DEFAULT_KYC_FLOW_ENABLED),
-      getFeatureFlag(
+      readFeatureFlag(KYC_FLOW_ENABLED_FLAG, DEFAULT_KYC_FLOW_ENABLED),
+      readFeatureFlag(
         KYC_FLOW_DISABLED_COUNTRIES_FLAG,
         DEFAULT_KYC_FLOW_DISABLED_COUNTRIES,
       ),
     ]);
+    if (sync !== latestSync) {
+      return;
+    }
     useKycAvailabilityStore.setState({
       enabled,
       disabledCountries: parseDisabledCountries(disabledCountriesRaw),
@@ -77,7 +88,9 @@ subscribeToRemoteConfig(() => {
  * Whether the third-party (Didit) verification path may be offered. Pass the
  * ISO 3166-1 alpha-3 code of the document country when one is known; without
  * it only the global switch applies. Reads the last synced values, so it is
- * safe outside React (navigation listeners, notification handlers).
+ * safe outside React (navigation listeners, notification handlers). Re-check
+ * it right before creating a session: a confirmation modal may have been open
+ * while the flag changed.
  */
 export const isKycFlowEnabled = (countryCode?: string): boolean =>
   evaluate(useKycAvailabilityStore.getState(), countryCode);

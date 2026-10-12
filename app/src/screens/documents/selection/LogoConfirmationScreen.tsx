@@ -67,7 +67,21 @@ const LogoConfirmationScreen: React.FC = () => {
     navigateToOnboarding();
   }, [navigateToOnboarding]);
 
+  const showKycUnavailableNotice = useCallback(() => {
+    showModal({
+      titleText: 'Document Not Supported',
+      bodyText:
+        'Registration currently requires a document with a biometric chip. Please use a passport or an ID card that carries this symbol.',
+      buttonText: 'OK',
+      onButtonPress: () => {},
+    });
+  }, [showModal]);
+
   const runKycFlow = useCallback(async () => {
+    if (!isKycFlowEnabled(countryCode)) {
+      showKycUnavailableNotice();
+      return;
+    }
     let scanStarted = false;
     const sessionRequestedAt = Date.now();
     let providerOpenedAt: number | null = null;
@@ -167,18 +181,18 @@ const LogoConfirmationScreen: React.FC = () => {
         onButtonPress: () => {},
       });
     }
-  }, [countryCode, navigation, selfClient, showModal]);
+  }, [
+    countryCode,
+    navigation,
+    selfClient,
+    showKycUnavailableNotice,
+    showModal,
+  ]);
 
   const handleNotFound = useCallback(() => {
     buttonTap();
     if (!isKycFlowEnabled(countryCode)) {
-      showModal({
-        titleText: 'Document Not Supported',
-        bodyText:
-          'Registration currently requires a document with a biometric chip. Please use a passport or an ID card that carries this symbol.',
-        buttonText: 'OK',
-        onButtonPress: () => {},
-      });
+      showKycUnavailableNotice();
       return;
     }
     // "No" on the chip-symbol check routes through the KYC provider —
@@ -196,7 +210,13 @@ const LogoConfirmationScreen: React.FC = () => {
           selfClient,
         ),
     });
-  }, [countryCode, runKycFlow, selfClient, showModal]);
+  }, [
+    countryCode,
+    runKycFlow,
+    selfClient,
+    showKycUnavailableNotice,
+    showModal,
+  ]);
 
   return (
     <ExpandableBottomLayout.Layout backgroundColor={slate100}>

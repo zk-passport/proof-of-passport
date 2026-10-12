@@ -13,6 +13,7 @@ import {
   getFeatureFlag,
   getLocalOverrides,
   initRemoteConfig,
+  readFeatureFlag,
   refreshRemoteConfig,
   setLocalOverride,
   subscribeToRemoteConfig,
@@ -173,6 +174,31 @@ describe('RemoteConfig', () => {
 
       // Remote config should not be called when local override exists
       expect(mockRemoteConfig.getValue).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('readFeatureFlag', () => {
+    it('rejects instead of returning the default when the read fails', async () => {
+      mockRemoteConfig.getValue.mockImplementation(() => {
+        throw new Error('Firebase error');
+      });
+
+      await expect(readFeatureFlag('test_feature', true)).rejects.toThrow(
+        'Firebase error',
+      );
+    });
+
+    it('resolves the same value as getFeatureFlag on success', async () => {
+      mockRemoteConfig.getValue.mockReturnValue({
+        asString: () => 'remote value',
+        asBoolean: () => false,
+        asNumber: () => 0,
+        getSource: () => 'remote',
+      });
+
+      await expect(readFeatureFlag('testFlag', 'default')).resolves.toBe(
+        'remote value',
+      );
     });
   });
 
@@ -423,23 +449,24 @@ describe('RemoteConfig', () => {
       const unsubscribe = subscribeToRemoteConfig(listener);
 
       await initRemoteConfig();
-      expect(listener).toHaveBeenCalledTimes(1);
-
-      await refreshRemoteConfig();
+      // Once for the cached activation, once after the fetch.
       expect(listener).toHaveBeenCalledTimes(2);
 
-      await setLocalOverride('someFlag', true);
+      await refreshRemoteConfig();
       expect(listener).toHaveBeenCalledTimes(3);
 
-      await clearLocalOverride('someFlag');
+      await setLocalOverride('someFlag', true);
       expect(listener).toHaveBeenCalledTimes(4);
 
-      await clearAllLocalOverrides();
+      await clearLocalOverride('someFlag');
       expect(listener).toHaveBeenCalledTimes(5);
+
+      await clearAllLocalOverrides();
+      expect(listener).toHaveBeenCalledTimes(6);
 
       unsubscribe();
       await refreshRemoteConfig();
-      expect(listener).toHaveBeenCalledTimes(5);
+      expect(listener).toHaveBeenCalledTimes(6);
     });
 
     it('still notifies when the remote fetch fails', async () => {
@@ -450,7 +477,26 @@ describe('RemoteConfig', () => {
 
       await initRemoteConfig();
 
+      expect(listener).toHaveBeenCalledTimes(2);
+      unsubscribe();
+    });
+
+    it('publishes cached values before the network fetch resolves', async () => {
+      let resolveFetch: (value: boolean) => void = () => {};
+      mockRemoteConfig.fetchAndActivate.mockImplementation(
+        () => new Promise<boolean>(resolve => (resolveFetch = resolve)),
+      );
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+      listener.mockClear();
+
+      const init = initRemoteConfig();
+      await new Promise(resolve => setTimeout(resolve, 0));
       expect(listener).toHaveBeenCalledTimes(1);
+
+      resolveFetch(true);
+      await init;
+      expect(listener).toHaveBeenCalledTimes(2);
       unsubscribe();
     });
 
@@ -493,12 +539,12 @@ describe('RemoteConfig', () => {
 
       await initRemoteConfig();
       expect(mockRemoteConfig.onConfigUpdated).toHaveBeenCalledTimes(1);
-      expect(listener).toHaveBeenCalledTimes(1);
+      listener.mockClear();
 
       await getListener()({ updatedKeys: ['kyc_flow_enabled'] });
 
       expect(mockRemoteConfig.activate).toHaveBeenCalledTimes(1);
-      expect(listener).toHaveBeenCalledTimes(2);
+      expect(listener).toHaveBeenCalledTimes(1);
       unsubscribe();
     });
 

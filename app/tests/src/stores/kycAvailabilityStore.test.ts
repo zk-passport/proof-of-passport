@@ -4,7 +4,10 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 
-import { getFeatureFlag, subscribeToRemoteConfig } from '@/config/remoteConfig';
+import {
+  readFeatureFlag,
+  subscribeToRemoteConfig,
+} from '@/config/remoteConfig';
 import {
   KYC_FLOW_DISABLED_COUNTRIES_FLAG,
   KYC_FLOW_ENABLED_FLAG,
@@ -18,12 +21,12 @@ import {
 } from '@/stores/kycAvailabilityStore';
 
 jest.mock('@/config/remoteConfig', () => ({
-  getFeatureFlag: jest.fn(),
+  readFeatureFlag: jest.fn(),
   subscribeToRemoteConfig: jest.fn(() => jest.fn()),
 }));
 
-const mockGetFeatureFlag = getFeatureFlag as jest.MockedFunction<
-  typeof getFeatureFlag
+const mockGetFeatureFlag = readFeatureFlag as jest.MockedFunction<
+  typeof readFeatureFlag
 >;
 const mockSubscribe = subscribeToRemoteConfig as jest.MockedFunction<
   typeof subscribeToRemoteConfig
@@ -100,13 +103,42 @@ describe('kycAvailabilityStore', () => {
 
   it('keeps the previous values when a flag read throws', async () => {
     const error = jest.spyOn(console, 'error').mockImplementation(() => {});
-    mockGetFeatureFlag.mockRejectedValue(new Error('storage'));
+    setFlags(false, 'IND');
+    await syncKycAvailability();
+    expect(isKycFlowEnabled()).toBe(false);
 
+    mockGetFeatureFlag.mockRejectedValue(new Error('storage'));
     await syncKycAvailability();
 
-    expect(useKycAvailabilityStore.getState().hydrated).toBe(false);
-    expect(isKycFlowEnabled('IND')).toBe(true);
+    expect(isKycFlowEnabled()).toBe(false);
+    expect(useKycAvailabilityStore.getState().disabledCountries).toEqual([
+      'IND',
+    ]);
     error.mockRestore();
+  });
+
+  it('discards a sync that finishes after a newer one', async () => {
+    let resolveOld: (value: never) => void = () => {};
+    mockGetFeatureFlag.mockImplementation(
+      (flag: string) =>
+        new Promise(resolve => {
+          if (flag === KYC_FLOW_ENABLED_FLAG) {
+            resolveOld = resolve as (value: never) => void;
+          } else {
+            resolve('' as never);
+          }
+        }),
+    );
+    const oldSync = syncKycAvailability();
+
+    setFlags(false, '');
+    await syncKycAvailability();
+    expect(isKycFlowEnabled()).toBe(false);
+
+    resolveOld(true as never);
+    await oldSync;
+
+    expect(isKycFlowEnabled()).toBe(false);
   });
 
   it('re-renders the reactive hook when the flags change', async () => {

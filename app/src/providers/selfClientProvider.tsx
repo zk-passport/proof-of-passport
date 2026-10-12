@@ -376,6 +376,10 @@ export const SelfClientProvider = ({ children }: PropsWithChildren) => {
               }
               showKycFaucetNotice({
                 onContinue: async () => {
+                  if (!isKycFlowEnabled(countryCode)) {
+                    navigationRef.navigate('ComingSoon', { countryCode });
+                    return;
+                  }
                   const sessionRequestedAt = Date.now();
                   let providerOpenedAt = 0;
                   const trackEventClient = { trackEvent };
