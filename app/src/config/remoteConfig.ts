@@ -57,6 +57,7 @@ const mobileRemoteConfigBackend: RemoteConfigBackend = {
 };
 
 export type { FeatureFlagValue } from '@/config/remoteConfig.shared';
+export { subscribeToRemoteConfig } from '@/config/remoteConfig.shared';
 
 export const clearAllLocalOverrides = () =>
   clearAllLocalOverridesShared(mobileStorageBackend);

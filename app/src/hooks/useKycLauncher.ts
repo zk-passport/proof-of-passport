@@ -19,9 +19,9 @@ import {
 
 import {
   createKycSession,
-  isKycFlowEnabled,
   KYC_PROVIDER,
   launchKycVerification as startKycVerification,
+  useKycFlowEnabled,
 } from '@/integrations/kyc';
 import { confirmKycFaucetNotice } from '@/integrations/kyc/faucetNotice';
 import type { KycVerificationResult } from '@/integrations/kyc/types';
@@ -199,7 +199,7 @@ export const useKycLauncher = (options: UseKycLauncherOptions) => {
     }
   }, [navigation, selfClient, countryCode, onSuccess, onCancel, onError]);
 
-  const isKycAvailable = isKycFlowEnabled();
+  const isKycAvailable = useKycFlowEnabled(countryCode);
 
   const launchKycVerification = useCallback(async () => {
     if (!isKycAvailable) {

@@ -12,7 +12,10 @@ import {
   getAllFeatureFlags,
   getFeatureFlag,
   getLocalOverrides,
+  initRemoteConfig,
+  refreshRemoteConfig,
   setLocalOverride,
+  subscribeToRemoteConfig,
 } from '@/config/remoteConfig';
 
 // Mock AsyncStorage with a default export
@@ -409,6 +412,55 @@ describe('RemoteConfig', () => {
 
       // Should return empty object
       expect(result).toEqual({});
+    });
+  });
+  describe('subscribeToRemoteConfig', () => {
+    it('notifies subscribers after init, refresh and local override changes', async () => {
+      mockRemoteConfig.fetchAndActivate.mockResolvedValue(true);
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+
+      await initRemoteConfig();
+      expect(listener).toHaveBeenCalledTimes(1);
+
+      await refreshRemoteConfig();
+      expect(listener).toHaveBeenCalledTimes(2);
+
+      await setLocalOverride('someFlag', true);
+      expect(listener).toHaveBeenCalledTimes(3);
+
+      await clearLocalOverride('someFlag');
+      expect(listener).toHaveBeenCalledTimes(4);
+
+      await clearAllLocalOverrides();
+      expect(listener).toHaveBeenCalledTimes(5);
+
+      unsubscribe();
+      await refreshRemoteConfig();
+      expect(listener).toHaveBeenCalledTimes(5);
+    });
+
+    it('still notifies when the remote fetch fails', async () => {
+      mockRemoteConfig.fetchAndActivate.mockRejectedValue(new Error('offline'));
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+      listener.mockClear();
+
+      await initRemoteConfig();
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      unsubscribe();
+    });
+
+    it('runs a late subscriber immediately once remote config is initialized', async () => {
+      mockRemoteConfig.fetchAndActivate.mockResolvedValue(true);
+      await initRemoteConfig();
+
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      unsubscribe();
     });
   });
 });

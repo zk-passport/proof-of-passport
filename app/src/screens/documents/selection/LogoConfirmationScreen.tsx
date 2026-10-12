@@ -171,7 +171,7 @@ const LogoConfirmationScreen: React.FC = () => {
 
   const handleNotFound = useCallback(() => {
     buttonTap();
-    if (!isKycFlowEnabled()) {
+    if (!isKycFlowEnabled(countryCode)) {
       showModal({
         titleText: 'Document Not Supported',
         bodyText:
@@ -196,7 +196,7 @@ const LogoConfirmationScreen: React.FC = () => {
           selfClient,
         ),
     });
-  }, [runKycFlow, selfClient, showModal]);
+  }, [countryCode, runKycFlow, selfClient, showModal]);
 
   return (
     <ExpandableBottomLayout.Layout backgroundColor={slate100}>

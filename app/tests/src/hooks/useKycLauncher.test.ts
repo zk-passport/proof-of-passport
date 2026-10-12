@@ -53,11 +53,16 @@ jest.mock('@selfxyz/mobile-sdk-alpha/constants/analytics', () => ({
   },
 }));
 
-jest.mock('@/integrations/kyc', () => ({
-  createKycSession: jest.fn(),
-  isKycFlowEnabled: jest.fn(() => true),
-  launchKycVerification: jest.fn(),
-}));
+jest.mock('@/integrations/kyc', () => {
+  const isKycFlowEnabledMock = jest.fn(() => true);
+  return {
+    createKycSession: jest.fn(),
+    isKycFlowEnabled: isKycFlowEnabledMock,
+    launchKycVerification: jest.fn(),
+    useKycFlowEnabled: (countryCode?: string) =>
+      isKycFlowEnabledMock(countryCode),
+  };
+});
 
 jest.mock('@/providers/feedbackProvider', () => ({
   useFeedback: jest.fn(),
@@ -472,6 +477,12 @@ describe('useKycLauncher', () => {
       KycEvents.FAUCET_NOTICE_DECLINED,
     );
     expect(result.current.isLoading).toBe(false);
+  });
+
+  it('evaluates availability against the document country', () => {
+    renderHook(() => useKycLauncher({ countryCode: 'IND' }));
+
+    expect(mockIsKycFlowEnabled).toHaveBeenCalledWith('IND');
   });
 
   describe('when the KYC flow is disabled', () => {

@@ -50,6 +50,7 @@ export {
   initRemoteConfig,
   refreshRemoteConfig,
   setLocalOverride,
+  subscribeToRemoteConfig,
 } from '@/config/remoteConfig';
 
 // Segment analytics

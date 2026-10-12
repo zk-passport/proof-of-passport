@@ -49,9 +49,53 @@ export const AADHAAR_PDF_PASSWORD_HINT_FLAG = 'aadhaar_pdf_password_hint';
 export const DEFAULT_AADHAAR_PDF_PASSWORD_HINT =
   'Password is the first 4 letters of your name in CAPITALS + your birth year, e.g. SELF2026.';
 
+// Third-party (Didit) KYC verification path. The boolean is the global
+// switch; the string is a comma-separated list of ISO 3166-1 alpha-3 document
+// countries (e.g. "IND,USA") for which the path stays hidden even when the
+// global switch is on. Both evaluate against the country the user picked, not
+// the device locale.
+export const KYC_FLOW_ENABLED_FLAG = 'kyc_flow_enabled';
+export const KYC_FLOW_DISABLED_COUNTRIES_FLAG = 'kyc_flow_disabled_countries';
+export const DEFAULT_KYC_FLOW_ENABLED = true;
+export const DEFAULT_KYC_FLOW_DISABLED_COUNTRIES = '';
+
 // Default feature flags - this should be defined by the consuming application
 const defaultFlags: Record<string, string | boolean> = {
   [AADHAAR_PDF_PASSWORD_HINT_FLAG]: DEFAULT_AADHAAR_PDF_PASSWORD_HINT,
+  [KYC_FLOW_ENABLED_FLAG]: DEFAULT_KYC_FLOW_ENABLED,
+  [KYC_FLOW_DISABLED_COUNTRIES_FLAG]: DEFAULT_KYC_FLOW_DISABLED_COUNTRIES,
+};
+
+type RemoteConfigListener = () => void;
+const remoteConfigListeners = new Set<RemoteConfigListener>();
+let remoteConfigInitialized = false;
+
+const notifyRemoteConfigListeners = () => {
+  remoteConfigListeners.forEach(listener => {
+    try {
+      listener();
+    } catch (error) {
+      console.error('Remote config listener failed:', error);
+    }
+  });
+};
+
+/**
+ * Runs `listener` whenever the effective flag values may have changed: after
+ * the initial fetch, a manual refresh, or a local override edit. If remote
+ * config is already initialized the listener runs once immediately, so late
+ * subscribers never miss the first activation.
+ */
+export const subscribeToRemoteConfig = (
+  listener: RemoteConfigListener,
+): (() => void) => {
+  remoteConfigListeners.add(listener);
+  if (remoteConfigInitialized) {
+    listener();
+  }
+  return () => {
+    remoteConfigListeners.delete(listener);
+  };
 };
 
 export const clearAllLocalOverrides = async (
@@ -59,6 +103,7 @@ export const clearAllLocalOverrides = async (
 ): Promise<void> => {
   try {
     await storage.removeItem(LOCAL_OVERRIDES_KEY);
+    notifyRemoteConfigListeners();
   } catch (error) {
     console.error('Failed to clear all local overrides:', error);
   }
@@ -72,6 +117,7 @@ export const clearLocalOverride = async (
     const overrides = await getLocalOverrides(storage);
     delete overrides[flag];
     await storage.setItem(LOCAL_OVERRIDES_KEY, JSON.stringify(overrides));
+    notifyRemoteConfigListeners();
   } catch (error) {
     console.error('Failed to clear local override:', error);
   }
@@ -258,6 +304,8 @@ export const initRemoteConfig = async (
   } catch (err) {
     console.error('Remote config fetch failed', err);
   }
+  remoteConfigInitialized = true;
+  notifyRemoteConfigListeners();
 };
 
 export const refreshRemoteConfig = async (
@@ -268,6 +316,7 @@ export const refreshRemoteConfig = async (
   } catch (err) {
     console.error('Remote config refresh failed', err);
   }
+  notifyRemoteConfigListeners();
 };
 
 export const setLocalOverride = async (
@@ -279,6 +328,7 @@ export const setLocalOverride = async (
     const overrides = await getLocalOverrides(storage);
     overrides[flag] = value;
     await storage.setItem(LOCAL_OVERRIDES_KEY, JSON.stringify(overrides));
+    notifyRemoteConfigListeners();
   } catch (error) {
     console.error('Failed to set local override:', error);
   }

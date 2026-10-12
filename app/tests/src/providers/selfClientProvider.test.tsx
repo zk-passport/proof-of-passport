@@ -373,6 +373,7 @@ describe('SelfClientProvider', () => {
         documentTypes: ['p', 'kyc'],
       });
 
+      expect(isKycFlowEnabled).toHaveBeenCalledWith('US');
       expect(navigationRef.navigate).toHaveBeenCalledWith('IDPicker', {
         countryCode: 'US',
         documentTypes: ['p'],
