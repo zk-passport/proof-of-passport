@@ -54,6 +54,14 @@ const mobileRemoteConfigBackend: RemoteConfigBackend = {
   fetchAndActivate: async (): Promise<boolean> => {
     return await remoteConfig().fetchAndActivate();
   },
+  activate: async (): Promise<boolean> => {
+    return await remoteConfig().activate();
+  },
+  onConfigUpdated: listener => {
+    return remoteConfig().onConfigUpdated((event, error) =>
+      listener(event, error),
+    );
+  },
 };
 
 export type { FeatureFlagValue } from '@/config/remoteConfig.shared';

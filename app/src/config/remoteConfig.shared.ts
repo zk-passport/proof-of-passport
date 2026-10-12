@@ -24,6 +24,18 @@ export interface RemoteConfigBackend {
   setDefaults(defaults: Record<string, FeatureFlagValue>): Promise<void> | void;
   setConfigSettings(settings: Record<string, unknown>): Promise<void> | void;
   fetchAndActivate(): Promise<boolean>;
+  activate(): Promise<boolean>;
+  /**
+   * Real-time template updates pushed by the server. The SDK has already
+   * fetched the new values when `listener` fires; the caller activates them.
+   * Returns an unsubscribe function.
+   */
+  onConfigUpdated(
+    listener: (
+      event?: { updatedKeys: string[] },
+      error?: { code?: string; message: string },
+    ) => void,
+  ): () => void;
 }
 
 export interface RemoteConfigValue {
@@ -306,6 +318,34 @@ export const initRemoteConfig = async (
   }
   remoteConfigInitialized = true;
   notifyRemoteConfigListeners();
+  startRealtimeUpdates(remoteConfig);
+};
+
+let stopRealtimeUpdates: (() => void) | null = null;
+
+// Server-pushed template changes land within seconds while the app is in the
+// foreground, instead of waiting for the next launch past the fetch interval.
+const startRealtimeUpdates = (remoteConfig: RemoteConfigBackend): void => {
+  stopRealtimeUpdates?.();
+  try {
+    stopRealtimeUpdates = remoteConfig.onConfigUpdated(
+      async (_event, error) => {
+        if (error) {
+          console.error('Remote config realtime update failed', error);
+          return;
+        }
+        try {
+          await remoteConfig.activate();
+        } catch (err) {
+          console.error('Remote config activate failed', err);
+          return;
+        }
+        notifyRemoteConfigListeners();
+      },
+    );
+  } catch (err) {
+    console.error('Remote config realtime subscription failed', err);
+  }
 };
 
 export const refreshRemoteConfig = async (

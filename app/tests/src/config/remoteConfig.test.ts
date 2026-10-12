@@ -33,6 +33,8 @@ const mockRemoteConfigInstance = {
   setDefaults: jest.fn(),
   setConfigSettings: jest.fn(),
   fetchAndActivate: jest.fn(),
+  activate: jest.fn(),
+  onConfigUpdated: jest.fn(() => jest.fn()),
   getValue: jest.fn(),
   getAll: jest.fn(),
 };
@@ -461,6 +463,69 @@ describe('RemoteConfig', () => {
 
       expect(listener).toHaveBeenCalledTimes(1);
       unsubscribe();
+    });
+  });
+  describe('realtime updates', () => {
+    type RealtimeListener = (
+      event?: { updatedKeys: string[] },
+      error?: Error,
+    ) => Promise<void> | void;
+
+    const captureRealtimeListener = () => {
+      let captured: RealtimeListener | undefined;
+      const unsubscribe = jest.fn();
+      mockRemoteConfig.onConfigUpdated.mockImplementation(
+        (listener: RealtimeListener) => {
+          captured = listener;
+          return unsubscribe;
+        },
+      );
+      return { getListener: () => captured!, unsubscribe };
+    };
+
+    it('subscribes on init and activates then notifies on a pushed update', async () => {
+      mockRemoteConfig.fetchAndActivate.mockResolvedValue(true);
+      mockRemoteConfig.activate.mockResolvedValue(true);
+      const { getListener } = captureRealtimeListener();
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+      listener.mockClear();
+
+      await initRemoteConfig();
+      expect(mockRemoteConfig.onConfigUpdated).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledTimes(1);
+
+      await getListener()({ updatedKeys: ['kyc_flow_enabled'] });
+
+      expect(mockRemoteConfig.activate).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledTimes(2);
+      unsubscribe();
+    });
+
+    it('does not activate or notify when the realtime stream errors', async () => {
+      mockRemoteConfig.fetchAndActivate.mockResolvedValue(true);
+      const { getListener } = captureRealtimeListener();
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+
+      await initRemoteConfig();
+      listener.mockClear();
+
+      await getListener()(undefined, new Error('stream closed'));
+
+      expect(mockRemoteConfig.activate).not.toHaveBeenCalled();
+      expect(listener).not.toHaveBeenCalled();
+      unsubscribe();
+    });
+
+    it('replaces the previous realtime subscription when init runs again', async () => {
+      mockRemoteConfig.fetchAndActivate.mockResolvedValue(true);
+      const { unsubscribe } = captureRealtimeListener();
+
+      await initRemoteConfig();
+      await initRemoteConfig();
+
+      expect(unsubscribe).toHaveBeenCalledTimes(1);
     });
   });
 });
