@@ -309,6 +309,9 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           accept-android-sdk-licenses: true
+          # The default package list includes the legacy 'tools' package, which
+          # Google removed from the SDK repository; sdkmanager now fails on it.
+          packages: platform-tools
 
       - name: Install NDK
         uses: nick-fields/retry@v3
