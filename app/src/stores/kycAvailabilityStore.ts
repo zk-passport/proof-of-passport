@@ -50,12 +50,13 @@ const evaluate = (
 };
 
 let latestSync = 0;
+let lastAppliedSync = 0;
 
 /**
  * Re-reads the KYC flags from remote config (local overrides win) into the
  * store so the synchronous gates below reflect the latest activation. A read
  * failure keeps the last known values rather than falling back to defaults,
- * and a sync that is overtaken by a newer one is discarded.
+ * and a result is discarded only when a newer sync has already been applied.
  */
 export const syncKycAvailability = async (): Promise<void> => {
   const sync = ++latestSync;
@@ -67,9 +68,10 @@ export const syncKycAvailability = async (): Promise<void> => {
         DEFAULT_KYC_FLOW_DISABLED_COUNTRIES,
       ),
     ]);
-    if (sync !== latestSync) {
+    if (sync < lastAppliedSync) {
       return;
     }
+    lastAppliedSync = sync;
     useKycAvailabilityStore.setState({
       enabled,
       disabledCountries: parseDisabledCountries(disabledCountriesRaw),

@@ -230,7 +230,7 @@ export const readFeatureFlag = async <T extends FeatureFlagValue>(
   defaultValue: T,
 ): Promise<T> => {
   // Check local overrides first
-  const localOverrides = await getLocalOverrides(storage);
+  const localOverrides = await readLocalOverrides(storage);
   if (Object.prototype.hasOwnProperty.call(localOverrides, flag)) {
     return localOverrides[flag] as T;
   }
@@ -266,27 +266,39 @@ export const getFeatureFlag = async <T extends FeatureFlagValue>(
 };
 
 // Local override management
+
+/**
+ * Reads local overrides, rejecting when storage itself fails so callers can
+ * tell "no overrides" from "could not read overrides". Corrupt JSON is treated
+ * as no overrides: it is cleared and cannot be recovered by retrying.
+ */
+export const readLocalOverrides = async (
+  storage: StorageBackend,
+): Promise<LocalOverride> => {
+  const overrides = await storage.getItem(LOCAL_OVERRIDES_KEY);
+  if (!overrides) {
+    return {};
+  }
+  try {
+    return JSON.parse(overrides);
+  } catch (error) {
+    console.error('Failed to parse local overrides:', error);
+    try {
+      await storage.removeItem(LOCAL_OVERRIDES_KEY);
+    } catch (removeError) {
+      console.error('Failed to clear corrupt local overrides:', removeError);
+    }
+    return {};
+  }
+};
+
 export const getLocalOverrides = async (
   storage: StorageBackend,
 ): Promise<LocalOverride> => {
   try {
-    const overrides = await storage.getItem(LOCAL_OVERRIDES_KEY);
-    if (!overrides) {
-      return {};
-    }
-    return JSON.parse(overrides);
+    return await readLocalOverrides(storage);
   } catch (error) {
     console.error('Failed to get local overrides:', error);
-
-    // If JSON parsing fails, clear the corrupt data
-    if (error instanceof SyntaxError) {
-      try {
-        await storage.removeItem(LOCAL_OVERRIDES_KEY);
-      } catch (removeError) {
-        console.error('Failed to clear corrupt local overrides:', removeError);
-      }
-    }
-
     return {};
   }
 };

@@ -117,6 +117,32 @@ describe('kycAvailabilityStore', () => {
     error.mockRestore();
   });
 
+  it('applies an older successful sync when the newer one failed', async () => {
+    const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+    let resolveOld: (value: never) => void = () => {};
+    mockGetFeatureFlag.mockImplementation(
+      (flag: string) =>
+        new Promise(resolve => {
+          if (flag === KYC_FLOW_ENABLED_FLAG) {
+            resolveOld = resolve as (value: never) => void;
+          } else {
+            resolve('' as never);
+          }
+        }),
+    );
+    const oldSync = syncKycAvailability();
+
+    mockGetFeatureFlag.mockRejectedValue(new Error('storage'));
+    await syncKycAvailability();
+    expect(isKycFlowEnabled()).toBe(true);
+
+    resolveOld(false as never);
+    await oldSync;
+
+    expect(isKycFlowEnabled()).toBe(false);
+    error.mockRestore();
+  });
+
   it('discards a sync that finishes after a newer one', async () => {
     let resolveOld: (value: never) => void = () => {};
     mockGetFeatureFlag.mockImplementation(

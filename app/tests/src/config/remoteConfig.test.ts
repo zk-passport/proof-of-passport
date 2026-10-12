@@ -188,6 +188,30 @@ describe('RemoteConfig', () => {
       );
     });
 
+    it('rejects when the override storage read fails', async () => {
+      mockAsyncStorage.getItem.mockRejectedValue(new Error('disk'));
+
+      await expect(readFeatureFlag('test_feature', true)).rejects.toThrow(
+        'disk',
+      );
+      await expect(getFeatureFlag('test_feature', true)).resolves.toBe(true);
+    });
+
+    it('treats corrupt override JSON as no overrides and clears it', async () => {
+      mockAsyncStorage.getItem.mockResolvedValue('{not json');
+      mockRemoteConfig.getValue.mockReturnValue({
+        asString: () => 'true',
+        asBoolean: () => true,
+        asNumber: () => 1,
+        getSource: () => 'remote',
+      });
+
+      await expect(readFeatureFlag('test_feature', false)).resolves.toBe(true);
+      expect(mockAsyncStorage.removeItem).toHaveBeenCalledWith(
+        'feature_flag_overrides',
+      );
+    });
+
     it('resolves the same value as getFeatureFlag on success', async () => {
       mockRemoteConfig.getValue.mockReturnValue({
         asString: () => 'remote value',
