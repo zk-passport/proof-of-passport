@@ -374,6 +374,20 @@ function applyVersions(
       iosMarketingMatches === 1 ? '' : 's'
     })`,
   );
+
+  // Android has no MARKETING_VERSION equivalent: versionName is a literal in
+  // build.gradle, so it must be rewritten here or the binary keeps the old
+  // marketing version. Info.plist reads $(MARKETING_VERSION), so iOS is covered.
+  const androidVersionNameMatches = updateFileWithRegex(
+    ANDROID_GRADLE_PATH,
+    /versionName\s+"\d+\.\d+\.\d+"/g,
+    `versionName "${version}"`,
+  );
+  console.log(
+    `✅ Updated Android versionName (${androidVersionNameMatches} occurrence${
+      androidVersionNameMatches === 1 ? '' : 's'
+    })`,
+  );
 }
 
 /**
