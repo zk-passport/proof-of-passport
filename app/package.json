@@ -1,6 +1,6 @@
 {
   "name": "@selfxyz/mobile-app",
-  "version": "2.9.29",
+  "version": "2.9.30",
   "private": true,
   "type": "module",
   "main": "index.js",
