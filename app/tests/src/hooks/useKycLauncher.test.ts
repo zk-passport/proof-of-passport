@@ -53,11 +53,16 @@ jest.mock('@selfxyz/mobile-sdk-alpha/constants/analytics', () => ({
   },
 }));
 
-jest.mock('@/integrations/kyc', () => ({
-  createKycSession: jest.fn(),
-  isKycFlowEnabled: jest.fn(() => true),
-  launchKycVerification: jest.fn(),
-}));
+jest.mock('@/integrations/kyc', () => {
+  const isKycFlowEnabledMock = jest.fn(() => true);
+  return {
+    createKycSession: jest.fn(),
+    isKycFlowEnabled: isKycFlowEnabledMock,
+    launchKycVerification: jest.fn(),
+    useKycFlowEnabled: (countryCode?: string) =>
+      isKycFlowEnabledMock(countryCode),
+  };
+});
 
 jest.mock('@/providers/feedbackProvider', () => ({
   useFeedback: jest.fn(),
@@ -472,6 +477,52 @@ describe('useKycLauncher', () => {
       KycEvents.FAUCET_NOTICE_DECLINED,
     );
     expect(result.current.isLoading).toBe(false);
+  });
+
+  it('evaluates availability against the document country', () => {
+    renderHook(() => useKycLauncher({ countryCode: 'IND' }));
+
+    expect(mockIsKycFlowEnabled).toHaveBeenCalledWith('IND');
+  });
+
+  it('does not create a session for a disabled country', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    mockIsKycFlowEnabled.mockImplementation(
+      (countryCode?: string) => countryCode !== 'IND',
+    );
+    const { result } = renderHook(() => useKycLauncher({ countryCode: 'IND' }));
+
+    expect(result.current.isKycAvailable).toBe(false);
+    await act(async () => {
+      await result.current.launchKycVerification();
+    });
+
+    expect(mockCreateKycSession).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('re-checks availability after the faucet notice before creating a session', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const { result } = renderHook(() => useKycLauncher({ countryCode: 'US' }));
+    expect(result.current.isKycAvailable).toBe(true);
+
+    // The flag flips while the notice is on screen; the continuation must
+    // observe the new value.
+    mockShowModal.mockImplementation(params => {
+      if (params.buttonText === KYC_FAUCET_NOTICE_COPY.continueText) {
+        mockIsKycFlowEnabled.mockReturnValue(false);
+        Promise.resolve(params.onButtonPress()).catch(() => undefined);
+      }
+    });
+
+    await act(async () => {
+      await result.current.launchKycVerification();
+    });
+
+    expect(noticeModals().length).toBeGreaterThan(0);
+    expect(mockCreateKycSession).not.toHaveBeenCalled();
+    expect(mockStartKycVerification).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   describe('when the KYC flow is disabled', () => {

@@ -853,6 +853,8 @@ jest.mock('@react-native-firebase/remote-config', () => {
     setDefaults: jest.fn(),
     setConfigSettings: jest.fn(),
     fetchAndActivate: jest.fn(() => Promise.resolve(true)),
+    activate: jest.fn(() => Promise.resolve(true)),
+    onConfigUpdated: jest.fn(() => jest.fn()),
     getValue: jest.fn(() => mockValue),
   };
   return () => mockConfig;
