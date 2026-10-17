@@ -700,7 +700,6 @@
     "country-emoji": "^1.5.6",
     "elliptic": "^6.5.5",
     "ethers": "^6.14.4",
-    "fs": "^0.0.1-security",
     "hash.js": "^1.1.7",
     "i18n-iso-countries": "^7.13.0",
     "js-sha1": "^0.7.0",
