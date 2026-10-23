@@ -12,7 +12,11 @@ import {
   getAllFeatureFlags,
   getFeatureFlag,
   getLocalOverrides,
+  initRemoteConfig,
+  readFeatureFlag,
+  refreshRemoteConfig,
   setLocalOverride,
+  subscribeToRemoteConfig,
 } from '@/config/remoteConfig';
 
 // Mock AsyncStorage with a default export
@@ -30,6 +34,8 @@ const mockRemoteConfigInstance = {
   setDefaults: jest.fn(),
   setConfigSettings: jest.fn(),
   fetchAndActivate: jest.fn(),
+  activate: jest.fn(),
+  onConfigUpdated: jest.fn(() => jest.fn()),
   getValue: jest.fn(),
   getAll: jest.fn(),
 };
@@ -168,6 +174,55 @@ describe('RemoteConfig', () => {
 
       // Remote config should not be called when local override exists
       expect(mockRemoteConfig.getValue).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('readFeatureFlag', () => {
+    it('rejects instead of returning the default when the read fails', async () => {
+      mockRemoteConfig.getValue.mockImplementation(() => {
+        throw new Error('Firebase error');
+      });
+
+      await expect(readFeatureFlag('test_feature', true)).rejects.toThrow(
+        'Firebase error',
+      );
+    });
+
+    it('rejects when the override storage read fails', async () => {
+      mockAsyncStorage.getItem.mockRejectedValue(new Error('disk'));
+
+      await expect(readFeatureFlag('test_feature', true)).rejects.toThrow(
+        'disk',
+      );
+      await expect(getFeatureFlag('test_feature', true)).resolves.toBe(true);
+    });
+
+    it('treats corrupt override JSON as no overrides and clears it', async () => {
+      mockAsyncStorage.getItem.mockResolvedValue('{not json');
+      mockRemoteConfig.getValue.mockReturnValue({
+        asString: () => 'true',
+        asBoolean: () => true,
+        asNumber: () => 1,
+        getSource: () => 'remote',
+      });
+
+      await expect(readFeatureFlag('test_feature', false)).resolves.toBe(true);
+      expect(mockAsyncStorage.removeItem).toHaveBeenCalledWith(
+        'feature_flag_overrides',
+      );
+    });
+
+    it('resolves the same value as getFeatureFlag on success', async () => {
+      mockRemoteConfig.getValue.mockReturnValue({
+        asString: () => 'remote value',
+        asBoolean: () => false,
+        asNumber: () => 0,
+        getSource: () => 'remote',
+      });
+
+      await expect(readFeatureFlag('testFlag', 'default')).resolves.toBe(
+        'remote value',
+      );
     });
   });
 
@@ -409,6 +464,138 @@ describe('RemoteConfig', () => {
 
       // Should return empty object
       expect(result).toEqual({});
+    });
+  });
+  describe('subscribeToRemoteConfig', () => {
+    it('notifies subscribers after init, refresh and local override changes', async () => {
+      mockRemoteConfig.fetchAndActivate.mockResolvedValue(true);
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+
+      await initRemoteConfig();
+      // Once for the cached activation, once after the fetch.
+      expect(listener).toHaveBeenCalledTimes(2);
+
+      await refreshRemoteConfig();
+      expect(listener).toHaveBeenCalledTimes(3);
+
+      await setLocalOverride('someFlag', true);
+      expect(listener).toHaveBeenCalledTimes(4);
+
+      await clearLocalOverride('someFlag');
+      expect(listener).toHaveBeenCalledTimes(5);
+
+      await clearAllLocalOverrides();
+      expect(listener).toHaveBeenCalledTimes(6);
+
+      unsubscribe();
+      await refreshRemoteConfig();
+      expect(listener).toHaveBeenCalledTimes(6);
+    });
+
+    it('still notifies when the remote fetch fails', async () => {
+      mockRemoteConfig.fetchAndActivate.mockRejectedValue(new Error('offline'));
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+      listener.mockClear();
+
+      await initRemoteConfig();
+
+      expect(listener).toHaveBeenCalledTimes(2);
+      unsubscribe();
+    });
+
+    it('publishes cached values before the network fetch resolves', async () => {
+      let resolveFetch: (value: boolean) => void = () => {};
+      mockRemoteConfig.fetchAndActivate.mockImplementation(
+        () => new Promise<boolean>(resolve => (resolveFetch = resolve)),
+      );
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+      listener.mockClear();
+
+      const init = initRemoteConfig();
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(listener).toHaveBeenCalledTimes(1);
+
+      resolveFetch(true);
+      await init;
+      expect(listener).toHaveBeenCalledTimes(2);
+      unsubscribe();
+    });
+
+    it('runs a late subscriber immediately once remote config is initialized', async () => {
+      mockRemoteConfig.fetchAndActivate.mockResolvedValue(true);
+      await initRemoteConfig();
+
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      unsubscribe();
+    });
+  });
+  describe('realtime updates', () => {
+    type RealtimeListener = (
+      event?: { updatedKeys: string[] },
+      error?: Error,
+    ) => Promise<void> | void;
+
+    const captureRealtimeListener = () => {
+      let captured: RealtimeListener | undefined;
+      const unsubscribe = jest.fn();
+      mockRemoteConfig.onConfigUpdated.mockImplementation(
+        (listener: RealtimeListener) => {
+          captured = listener;
+          return unsubscribe;
+        },
+      );
+      return { getListener: () => captured!, unsubscribe };
+    };
+
+    it('subscribes on init and activates then notifies on a pushed update', async () => {
+      mockRemoteConfig.fetchAndActivate.mockResolvedValue(true);
+      mockRemoteConfig.activate.mockResolvedValue(true);
+      const { getListener } = captureRealtimeListener();
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+      listener.mockClear();
+
+      await initRemoteConfig();
+      expect(mockRemoteConfig.onConfigUpdated).toHaveBeenCalledTimes(1);
+      listener.mockClear();
+
+      await getListener()({ updatedKeys: ['kyc_flow_enabled'] });
+
+      expect(mockRemoteConfig.activate).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledTimes(1);
+      unsubscribe();
+    });
+
+    it('does not activate or notify when the realtime stream errors', async () => {
+      mockRemoteConfig.fetchAndActivate.mockResolvedValue(true);
+      const { getListener } = captureRealtimeListener();
+      const listener = jest.fn();
+      const unsubscribe = subscribeToRemoteConfig(listener);
+
+      await initRemoteConfig();
+      listener.mockClear();
+
+      await getListener()(undefined, new Error('stream closed'));
+
+      expect(mockRemoteConfig.activate).not.toHaveBeenCalled();
+      expect(listener).not.toHaveBeenCalled();
+      unsubscribe();
+    });
+
+    it('replaces the previous realtime subscription when init runs again', async () => {
+      mockRemoteConfig.fetchAndActivate.mockResolvedValue(true);
+      const { unsubscribe } = captureRealtimeListener();
+
+      await initRemoteConfig();
+      await initRemoteConfig();
+
+      expect(unsubscribe).toHaveBeenCalledTimes(1);
     });
   });
 });

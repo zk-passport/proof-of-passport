@@ -338,7 +338,7 @@ export const SelfClientProvider = ({ children }: PropsWithChildren) => {
         currentCountryCode = countryCode;
         // Store country code early so it's available for KYC fallback flows
         useMRZStore.getState().update({ countryCode });
-        const availableDocumentTypes = isKycFlowEnabled()
+        const availableDocumentTypes = isKycFlowEnabled(countryCode)
           ? documentTypes
           : documentTypes.filter(type => type !== 'kyc');
         if (availableDocumentTypes.length === 0) {
@@ -370,12 +370,16 @@ export const SelfClientProvider = ({ children }: PropsWithChildren) => {
               }
               break;
             case 'kyc':
-              if (!isKycFlowEnabled()) {
+              if (!isKycFlowEnabled(countryCode)) {
                 navigationRef.navigate('ComingSoon', { countryCode });
                 break;
               }
               showKycFaucetNotice({
                 onContinue: async () => {
+                  if (!isKycFlowEnabled(countryCode)) {
+                    navigationRef.navigate('ComingSoon', { countryCode });
+                    return;
+                  }
                   const sessionRequestedAt = Date.now();
                   let providerOpenedAt = 0;
                   const trackEventClient = { trackEvent };

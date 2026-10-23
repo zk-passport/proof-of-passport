@@ -22,6 +22,7 @@ import {
   isKycFlowEnabled,
   KYC_PROVIDER,
   launchKycVerification as startKycVerification,
+  useKycFlowEnabled,
 } from '@/integrations/kyc';
 import { confirmKycFaucetNotice } from '@/integrations/kyc/faucetNotice';
 import type { KycVerificationResult } from '@/integrations/kyc/types';
@@ -97,6 +98,11 @@ export const useKycLauncher = (options: UseKycLauncherOptions) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const runKycProviderFlow = useCallback(async () => {
+    // The faucet notice may have been open while the remote flag changed.
+    if (!isKycFlowEnabled(countryCode)) {
+      console.warn('KYC flow became unavailable; not creating a session');
+      return;
+    }
     const sessionRequestedAt = Date.now();
     let providerOpenedAt: number | null = null;
     try {
@@ -199,7 +205,7 @@ export const useKycLauncher = (options: UseKycLauncherOptions) => {
     }
   }, [navigation, selfClient, countryCode, onSuccess, onCancel, onError]);
 
-  const isKycAvailable = isKycFlowEnabled();
+  const isKycAvailable = useKycFlowEnabled(countryCode);
 
   const launchKycVerification = useCallback(async () => {
     if (!isKycAvailable) {
